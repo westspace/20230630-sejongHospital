@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sh.dao.UserDao">
+
+	<select id="findByUserID" resultType="User" parameterType="string">
+		SELECT
+ 			U.*,
+ 			R.*
+		FROM `USER` AS U
+			LEFT JOIN `ROLE` AS R 
+			on U.ROLE_CODE = R.ROLE_CODE
+		WHERE USER_ID = #{username};
+	</select>
+
+
+	<select id="getBoard" resultType="map">
+		SELECT 
+			ID, 
+			BOARD_ID, 
+			USER_ID, 
+			REG_DATE, 
+			ARTICLE_TITLE, 
+			ARTICLE_BODY, 
+			ARTICLE_TYPE
+	 	FROM 
+	 		BOARD_NOTICE_ARTICLE;
+	</select>
+
+	<select id="getNoticeBoard" resultType="map">
+		SELECT 
+			ID, 
+			BOARD_ID, 
+			USER_ID, 
+			REG_DATE, 
+			ARTICLE_TITLE, 
+			ARTICLE_BODY, 
+			ARTICLE_TYPE
+	 	FROM 
+	 		BOARD_NOTICE_ARTICLE
+ 		WHERE BOARD_ID = 1;
+	</select>
+
+	<select id="userChk" parameterType="map" resultType="map">
+		SELECT 
+			* 
+		FROM 
+			`USER` 
+		WHERE
+		USER_ID = #{USER_ID} 
+			AND 
+		USER_PW = #{USER_PW};
+	</select>
+
+	<select id="getUserList" resultType="map">
+		SELECT * FROM `USER` ORDER BY ID DESC;
+	</select>
+
+	<select id="findById" parameterType="string" resultType="int">
+		SELECT COUNT(*) FROM `USER` WHERE USER_ID = #{USER_ID}; 
+	</select>
+
+	<insert id="userJoin">
+		INSERT INTO `USER`
+		SET USER_ID = #{USER_ID},
+		USER_PW = #{USER_PW},
+		NAME = #{USER_NAME},
+		DEPARTMENT = #{DEPARTMENT},
+		AGENCY = #{AGENCY},
+		EMAIL = #{EMAIL};
+	</insert>
+
+	<select id="findByUserCode" parameterType="string" resultType="int">
+		SELECT COUNT(*) FROM `USER` WHERE ID = #{USER_CODE};
+	</select>
+
+	<delete id="removeUser" parameterType="string">
+		DELETE FROM `USER` WHERE ID = #{USER_CODE};
+	</delete>
+
+	<select id="findByUser" parameterType="string" resultType="map">
+		SELECT * FROM `USER` WHERE ID = #{USER_CODE};
+	</select>
+
+	<update id="userAccountStop" parameterType="map">
+		UPDATE `USER` SET USER_TYPE = 0 WHERE ID = #{USER_CODE}
+	</update>
+
+	<update id="userAccountStart" parameterType="map">
+		UPDATE `USER` SET USER_TYPE = 1 WHERE ID = #{USER_CODE}
+	</update>
+
+
+</mapper>

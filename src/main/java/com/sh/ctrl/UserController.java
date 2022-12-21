@@ -1,0 +1,73 @@
+package com.sh.ctrl;
+
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.sh.common.Maps;
+import com.sh.service.UserService;
+
+@RestController
+public class UserController {
+
+	@Autowired
+	private UserService userService;
+
+	@RequestMapping(value = "/api/userLogin", method = { RequestMethod.GET, RequestMethod.POST })
+	public Map<String, Object> userLogin(@RequestParam Map<String, Object> param) {
+
+		System.out.println("[ userLogin ] : " + param);
+
+		Map<String, Object> result = userService.userLogin(param);
+
+		return result;
+	}
+
+	/* 유저 리스트 */
+	@RequestMapping(value = "/api/userList", method = { RequestMethod.GET, RequestMethod.POST })
+	public Map<String, Object> getUserList() {
+
+		System.out.println("[ userList ] ");
+
+		Map<String, Object> result = userService.getUserList();
+
+		return result;
+	}
+
+	/* 관리자가 유저 추가 */
+	@RequestMapping(value = "/api/userJoin", method = { RequestMethod.GET, RequestMethod.POST })
+	public Map<String, Object> regiUser(@RequestParam Map<String, Object> param) {
+
+		System.out.println("[ regiUser ] : " + param);
+
+		Map<String, Object> result = userService.userJoin(param);
+
+		return result;
+	}
+
+	/* 관리자가 유저 업데이트 */
+	@RequestMapping("/api/updateUser")
+	public Map<String, Object> updateUser(@RequestParam Map<String, Object> param) {
+
+		System.out.println("[ updateUser ] : " + param);
+
+		Map<String, Object> result = userService.updateUser(param);
+
+		return result;
+	}
+
+	/* 관리자가 유저 삭제 */
+	@RequestMapping("/api/removeUser")
+	public Map<String, Object> removeUser(@RequestParam Map<String, Object> param) {
+
+		System.out.println("[ removeUser ] : " + param);
+
+		Map<String, Object> result = userService.removeUser(param);
+
+		return result;
+	}
+}
