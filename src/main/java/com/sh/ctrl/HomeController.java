@@ -21,14 +21,6 @@ public class HomeController {
 		return modelView;
 	}
 
-	@RequestMapping(value = "/admin", method = { RequestMethod.GET, RequestMethod.POST })
-	public ModelAndView adminView(ModelAndView modelView) throws Exception {
-
-		modelView.setViewName("admin");
-
-		return modelView;
-	}
-
 	@RequestMapping(value = "/login", method = { RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView loginView(ModelAndView modelView, @RequestParam(value = "error", required = false) String error,
 			@RequestParam(value = "exception", required = false) String exception, Model model,

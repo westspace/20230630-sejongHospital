@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sh.dao.HospitalDao">
+	<select id="findByHpid" parameterType="string" resultType="int">
+		SELECT COUNT(*) FROM HOSPITAL WHERE HPID = #{hpid}
+	</select>
+
+	<insert id="saveHospital" parameterType="map">
+		INSERT INTO HOSPITAL
+		SET DUTYTEL = #{dutyTel3},
+		DUTYNAME = #{dutyName},
+		
+		LATITUDE = #{lat},
+		LONGITUDE = #{lon},
+		
+		HPID = #{hpid},
+		AREA = #{area};	
+	</insert>
+	
+	<select id="hospitalList" resultType="map">
+		SELECT * FROM HOSPITAL ORDER BY HOSPITAL_CODE DESC;
+	</select>
+	
+	<delete id="removeHospital">
+		DELETE FROM HOSPITAL WHERE HPID = #{hpid};
+	</delete>
+</mapper>

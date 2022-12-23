@@ -28,15 +28,17 @@ public class SecurityConfiguration {
 	    .exceptionHandling()
 	    .accessDeniedHandler(new CustomAccessDeniedHandler());
 		
-		http.cors().and()
-		.csrf()
-		.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+		http
+		.cors()
+//		.and()
+//		.csrf()
+//		.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 		.and()
-         /*
 		.csrf().disable() // rest api만 사용하고 싶을때
+         /*
           */
          .authorizeRequests().antMatchers("/api/*","/api/**",
-    		 "/login", "/join", "/test").permitAll()
+    		 "/login", "/join", "/test", "/admin", "/admin/**").permitAll()
 	        //.antMatchers("/admin/**", "/admin").hasAuthority("ADMIN")
 	        .anyRequest().authenticated()
         	.and()

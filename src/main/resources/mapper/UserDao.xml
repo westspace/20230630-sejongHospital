@@ -53,7 +53,7 @@
 	</select>
 
 	<select id="getUserList" resultType="map">
-		SELECT * FROM `USER` ORDER BY ID DESC;
+		SELECT * FROM `USER` ORDER BY USER_CODE DESC;
 	</select>
 
 	<select id="findById" parameterType="string" resultType="int">

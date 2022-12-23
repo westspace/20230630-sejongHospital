@@ -11,4 +11,7 @@ public interface BoardDao {
 	List<Map<String, Object>> getNoticeBoard();
 	void article(Map<String, Object> param);
 	void removeArticle(Map<String, Object> param);
+	List<Map<String, Object>> getNoticeArticleList();
+	void noticeArticle(Map<String, Object> param);
+	List<Map<String, Object>> getNoticeAllList();
 }

@@ -10,12 +10,45 @@
 		ARTICLE_BODY = #{ARTICLE_BODY},
 		ARTICLE_TYPE = 1;
 	</insert>
-	
+
 	<delete id="removeArticle" parameterType="map">
 		DELETE FROM BOARD_NOTICE_ARTICLE WHERE ID = #{article_id};
 	</delete>
-	
+
 	<select id="getNoticeBoard" resultType="map">
-		SELECT * FROM BOARD_NOTICE_ARTICLE WHERE BOARD_ID = 1 ORDER BY ID DESC LIMIT 5;
+		SELECT * FROM ADMIN_NOTICE_ARTICLE ORDER BY ARTICLE_CODE DESC LIMIT 4;
 	</select>
+
+	<select id="getNoticeAllList" resultType="map">
+		SELECT * FROM ADMIN_NOTICE_ARTICLE ORDER BY ARTICLE_CODE DESC;
+	</select>
+
+	<!-- 관리자 페이지 -->
+	<select id="getNoticeArticleList" resultType="map">
+		select 
+			A.ARTICLE_CODE ,
+			A.BOARD_CODE ,
+			A.USER_CODE,
+			A.REG_DATE ,
+			A.TITLE ,
+			U.NAME,
+			U.ROLE_CODE,
+			R.ROLE_NAME 
+		from 
+			admin_notice_article as A
+		left join `USER` as U
+			on A.USER_CODE = U.USER_CODE
+		left join `ROLE` as R
+			on U.ROLE_CODE = R.ROLE_CODE
+		order by A.ARTICLE_CODE DESC;
+	</select>
+
+	<!-- 관리자 페이지 -->
+	<insert id="noticeArticle" parameterType="map">
+		INSERT INTO ADMIN_NOTICE_ARTICLE
+		SET BOARD_CODE = 1,
+		USER_CODE = 1,
+		TITLE = #{noticeTitle},
+		BODY = #{noticeBody};
+	</insert>
 </mapper>
