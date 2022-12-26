@@ -101,4 +101,19 @@ public class BoardServiceImpl implements BoardService {
 		List<Map<String, Object>> result = boardDao.getNoticeAllList();
 		return Maps.json("S-1", "ok", result);
 	}
+
+	@Override
+	public Map<String, Object> getAdminNoticeDetail(String boardId) {
+		Map<String, Object> result = boardDao.getAdminNoticeDetail(boardId);
+		
+		return Maps.json("S-1", "ok", result);
+	}
+
+	@Override
+	public Map adminBoardRemove(Map<String, Object> param) {
+		// TODO Auto-generated method stub
+		
+		boardDao.adminBoardRemove(param);
+		return Maps.json("S-1", "ok");
+	}
 }

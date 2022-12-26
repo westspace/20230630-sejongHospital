@@ -51,4 +51,28 @@
 		TITLE = #{noticeTitle},
 		BODY = #{noticeBody};
 	</insert>
+	
+	<select id="getAdminNoticeDetail" parameterType="string" resultType="map">
+		select 
+			A.ARTICLE_CODE ,
+			A.BOARD_CODE ,
+			A.USER_CODE,
+			A.REG_DATE ,
+			A.TITLE ,
+			A.BODY ,
+			U.NAME,
+			U.ROLE_CODE,
+			R.ROLE_NAME 
+		from 
+			admin_notice_article as A
+		left join `USER` as U
+			on A.USER_CODE = U.USER_CODE
+		left join `ROLE` as R
+		on U.ROLE_CODE = R.ROLE_CODE
+			WHERE A.ARTICLE_CODE = #{boardId};
+	</select>
+	
+	<delete id="adminBoardRemove" parameterType="map">
+		DELETE FROM ADMIN_NOTICE_ARTICLE WHERE ARTICLE_CODE = #{ARTICLE_CODE};
+	</delete>
 </mapper>

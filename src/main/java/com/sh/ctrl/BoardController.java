@@ -51,51 +51,5 @@ public class BoardController {
 		return result;
 	}
 
-	/* 관리자 공지 */
-	@RequestMapping("/api/article")
-	public Map<String, Object> article(@RequestParam Map<String, Object> param) {
-
-		System.out.println("[ article ] : " + param);
-
-		Map<String, Object> result = boardService.article(param);
-
-		return result;
-	}
-
-	/* 게시글 삭제 */
-	@RequestMapping("/api/removeArticle")
-	public Map<String, Object> removeArticle(@RequestParam Map<String, Object> param) {
-
-		System.out.println("[ removeArticle ] : " + param);
-
-		Map<String, Object> result = boardService.removeArticle(param);
-
-		return result;
-	}
-
-	/* 관리자 공지 리스트 */
-	@RequestMapping("/api/getNoticeArticleList")
-	public Map<String, Object> getNoticeArticleList() {
-
-		Map<String, Object> result = boardService.getNoticeArticleList();
-
-		return result;
-	}
-
-	/* 관리자 공지 등록 */
-	@RequestMapping("/api/noticeArticle")
-	public Map<String, Object> noticeArticle(@RequestParam Map<String, Object> param,
-			MultipartHttpServletRequest mtfRequest, @AuthenticationPrincipal CustomUserDetails authUser)
-			throws IOException {
-
-		Map<String, Object> result = null;
-
-		// if (authUser != null) {
-		// System.out.println("authUser : " + authUser.getUserCode());
-		result = boardService.noticeArticle(param, mtfRequest);
-		// }
-
-		return result;
-	}
-
+	
 }

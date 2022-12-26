@@ -26,7 +26,7 @@ import com.sh.common.Maps;
 import com.sh.service.HospitalService;
 
 @RestController
-public class ManagerController {
+public class OpenApiController {
 	
 	@Autowired
 	private HospitalService hospitalService;
@@ -154,6 +154,7 @@ public class ManagerController {
 							/* 해당 open api 는 위경도 값이 없어서 저장된 위경도 값 꺼내서 추가 */
 							objectInArray.put("LATITUDE", saveObjectArray.get("LATITUDE"));
 							objectInArray.put("LONGITUDE", saveObjectArray.get("LONGITUDE"));
+							objectInArray.put("h_data", saveObjectArray);
 							
 							validChkHpid.put(objectInArray.get("hpid").toString(), objectInArray.toString());
 						}
@@ -239,11 +240,18 @@ public class ManagerController {
         conn.disconnect();
         //System.out.println(sb.toString());
         
-        org.json.JSONObject json = XML.toJSONObject(sb.toString());
-		String jsonStr = json.toString(4);
-		System.out.println(jsonStr);
-        
-		return Maps.json("", "", json.toString());
+     
+		
+		JSONObject json = XML.toJSONObject(sb.toString());
+		
+		JSONObject response = (JSONObject) json.get("response");
+		JSONObject body = (JSONObject) response.get("body");
+		JSONObject items = (JSONObject) body.get("items");
+		JSONObject item = (JSONObject) items.get("item");
+		
+		System.out.println(item.toString(4));
+		
+		return Maps.json("S-1", "ok", item.toString());
 	}
 
 

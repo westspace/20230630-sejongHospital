@@ -20,4 +20,8 @@ public interface BoardService {
 
 	Map<String, Object> getNoticeAllList();
 
+	Map<String, Object> getAdminNoticeDetail(String boardId);
+
+	Map adminBoardRemove(Map<String, Object> param);
+
 }
