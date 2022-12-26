@@ -42,4 +42,12 @@ public class HospitalController {
 
 		return result;
 	}
+	
+	@RequestMapping(value = "/api/showHospitalByAreaList", method = { RequestMethod.GET, RequestMethod.POST })
+	public Map<String, Object> showHospitalByAreaList(@RequestParam String area) {
+
+		Map<String, Object> result = hospitalService.showHospitalByAreaList(area);
+
+		return result;
+	}
 }

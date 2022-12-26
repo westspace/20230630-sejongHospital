@@ -6,10 +6,16 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
+import org.json.simple.parser.JSONParser;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,9 +23,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sh.common.ApiUrl;
 import com.sh.common.Maps;
+import com.sh.service.HospitalService;
 
 @RestController
 public class ManagerController {
+	
+	@Autowired
+	private HospitalService hospitalService;
 
 	// 세종 충남 대전
 	@RequestMapping(value = "/api/getEmrm", method = { RequestMethod.GET, RequestMethod.POST })
@@ -59,12 +69,104 @@ public class ManagerController {
 		conn.disconnect();
 		// System.out.println(sb.toString());
 
-		JSONObject json = XML.toJSONObject(sb.toString());
+		org.json.JSONObject json = XML.toJSONObject(sb.toString());
 		String jsonStr = json.toString(4);
 		System.out.println(jsonStr);
 
 		return Maps.json("", "", json.toString());
 	}
+	
+		// 세종 충남 대전
+		@RequestMapping(value = "/api/getEmrrmRltmUsefulSckbdInfoInqire", method = { RequestMethod.GET, RequestMethod.POST })
+		public Map<String, Object> getEmrrmRltmUsefulSckbdInfoInqire(@RequestParam String area) throws IOException {
+
+			
+			System.out.println("hAddr : " + area);
+			StringBuilder urlBuilder = new StringBuilder(ApiUrl.SERVICE_URL + "/getEmrrmRltmUsefulSckbdInfoInqire");
+
+			urlBuilder.append("?" + URLEncoder.encode("serviceKey", "UTF-8") + "=" + ApiUrl.API_KEY); /* Service Key */
+			urlBuilder.append(
+					"&" + URLEncoder.encode("STAGE1", "UTF-8") + "=" + URLEncoder.encode(area, "UTF-8")); /* 주소(시도) */
+			urlBuilder.append(
+					"&" + URLEncoder.encode("STAGE2", "UTF-8") + "=" + URLEncoder.encode("", "UTF-8")); /* 주소(시군구) */
+			urlBuilder.append(
+					"&" + URLEncoder.encode("pageNo", "UTF-8") + "=" + URLEncoder.encode("1", "UTF-8")); /* 페이지 번호 */
+			urlBuilder.append(
+					"&" + URLEncoder.encode("numOfRows", "UTF-8") + "=" + URLEncoder.encode("100", "UTF-8")); /* 목록 건수 */
+
+			URL url = new URL(urlBuilder.toString());
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod("GET");
+			conn.setRequestProperty("Content-type", "application/json");
+			System.out.println("Response code: " + conn.getResponseCode());
+			BufferedReader rd;
+			if (conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
+				rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			} else {
+				rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+			}
+			StringBuilder sb = new StringBuilder();
+			String line;
+			while ((line = rd.readLine()) != null) {
+				sb.append(line);
+			}
+			rd.close();
+			conn.disconnect();
+			// System.out.println(sb.toString());
+
+			JSONObject json = XML.toJSONObject(sb.toString());
+			JSONObject response = (JSONObject) json.get("response");
+			JSONObject body = (JSONObject) response.get("body");
+			JSONObject items = (JSONObject) body.get("items");
+			JSONArray item = (JSONArray) items.get("item");
+			
+			Map<String, Object> result = hospitalService.showHospitalByAreaList(area);
+		
+			
+			org.json.simple.JSONObject jo = new org.json.simple.JSONObject();
+			String data = jo.toJSONString(result);
+			
+			//org.json.simple.JSOn jsonParser1 = new JSONParser();
+			
+			JSONParser jsonParser1 = new JSONParser();
+			org.json.simple.JSONObject jsonObject1;
+		
+			//ArrayList validChkHpid = new ArrayList();
+			
+			Map<String, Object> validChkHpid = new HashMap<>();
+			
+			
+			try {
+				jsonObject1 = (org.json.simple.JSONObject) jsonParser1.parse(data);
+				org.json.simple.JSONArray saveHospitalArr = (org.json.simple.JSONArray) jsonObject1.get("data");
+		
+				for (int j = 0; j < saveHospitalArr.size(); j++) { //save data
+					org.json.simple.JSONObject saveObjectArray = (org.json.simple.JSONObject) saveHospitalArr.get(j);
+					System.out.println("저장된 데이터 : "  +saveObjectArray.get("HPID"));
+					
+					for (int i = 0; i < item.length(); i++) { // open api
+						JSONObject objectInArray = (JSONObject) item.get(i);
+						System.out.println("open API items : " + objectInArray.get("hpid"));
+						
+						if(saveObjectArray.get("HPID").equals(objectInArray.get("hpid"))) {
+							
+							//validChkHpid.add(objectInArray);
+							/* 해당 open api 는 위경도 값이 없어서 저장된 위경도 값 꺼내서 추가 */
+							objectInArray.put("LATITUDE", saveObjectArray.get("LATITUDE"));
+							objectInArray.put("LONGITUDE", saveObjectArray.get("LONGITUDE"));
+							
+							validChkHpid.put(objectInArray.get("hpid").toString(), objectInArray.toString());
+						}
+					}
+				}
+			} catch (Exception e) {
+				// TODO: handle exception
+				System.out.println("[ getEmrrmRltmUsefulSckbdInfoInqire error ] : " + e.getMessage());
+			}
+			System.out.println("validChkHpid : " + validChkHpid);
+
+			return Maps.json("S-1", "ok", validChkHpid);
+		}
 
 	//응급의료기관 위치정보를 경도/위도별 반경내 정보를 조회할 수 있다.
 	@RequestMapping(value = "/api/getEgytLcinfoInqire", method = { RequestMethod.GET, RequestMethod.POST })
@@ -101,7 +203,7 @@ public class ManagerController {
 		//System.out.println(sb.toString());
 		
 
-		JSONObject json = XML.toJSONObject(sb.toString());
+		org.json.JSONObject json = XML.toJSONObject(sb.toString());
 		String jsonStr = json.toString(4);
 		System.out.println(jsonStr);
 		
@@ -137,7 +239,7 @@ public class ManagerController {
         conn.disconnect();
         //System.out.println(sb.toString());
         
-        JSONObject json = XML.toJSONObject(sb.toString());
+        org.json.JSONObject json = XML.toJSONObject(sb.toString());
 		String jsonStr = json.toString(4);
 		System.out.println(jsonStr);
         
@@ -213,7 +315,7 @@ public class ManagerController {
         rd.close();
         conn.disconnect();
         
-        JSONObject json = XML.toJSONObject(sb.toString());
+        org.json.JSONObject json = XML.toJSONObject(sb.toString());
 		String jsonStr = json.toString(4);
 		System.out.println(jsonStr);
 

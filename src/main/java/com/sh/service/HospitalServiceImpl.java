@@ -48,4 +48,14 @@ public class HospitalServiceImpl implements HospitalService {
 		return Maps.json("S-1", "ok");
 	}
 
+	@Override
+	public Map<String, Object> showHospitalByAreaList(String area) {
+		// TODO Auto-generated method stub
+		System.out.println(" [ area ] " + area);
+		
+		List<Map<String, Object>> result = hospitalDao.showHospitalByAreaList(area);
+		
+		return Maps.json("S-1", "ok", result);
+	}
+
 }

@@ -15,4 +15,6 @@ public interface HospitalDao {
 	List<Map<String, Object>> hospitalList();
 
 	void removeHospital(String hpid);
+
+	List<Map<String, Object>> showHospitalByAreaList(String area);
 }

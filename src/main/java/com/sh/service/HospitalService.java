@@ -10,4 +10,6 @@ public interface HospitalService {
 
 	Map<String, Object> removeHospital(String hpid);
 
+	Map<String, Object> showHospitalByAreaList(String area);
+
 }

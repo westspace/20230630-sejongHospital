@@ -2,6 +2,7 @@ package com.sh.ctrl;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -52,9 +53,11 @@ public class HomeController {
 		return modelView;
 	}
 
-	@RequestMapping(value = "/hospitalDetail", method = { RequestMethod.GET, RequestMethod.POST })
-	public ModelAndView hospitalDetailView(ModelAndView modelView) {
+	@RequestMapping(value = "/hospitalDetail/{hpid}", method = { RequestMethod.GET, RequestMethod.POST })
+	public ModelAndView hospitalDetailView(ModelAndView modelView, @PathVariable String hpid) {
 
+		System.out.println("hpid : " + hpid);
+		
 		modelView.setViewName("hospitalDetail");
 		return modelView;
 	}

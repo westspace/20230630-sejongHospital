@@ -25,4 +25,8 @@
 	<delete id="removeHospital">
 		DELETE FROM HOSPITAL WHERE HPID = #{hpid};
 	</delete>
+	
+	<select id="showHospitalByAreaList" parameterType="string" resultType="map">
+		SELECT * FROM HOSPITAL WHERE AREA = #{area};
+	</select>
 </mapper>
