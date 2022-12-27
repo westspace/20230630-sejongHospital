@@ -12,4 +12,6 @@ public interface HospitalService {
 
 	Map<String, Object> showHospitalByAreaList(String area);
 
+	Map<String, Object> hospitalAdminMemo(Map<String, Object> param);
+
 }

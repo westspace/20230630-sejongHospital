@@ -17,4 +17,6 @@ public interface HospitalDao {
 	void removeHospital(String hpid);
 
 	List<Map<String, Object>> showHospitalByAreaList(String area);
+
+	void hospitalAdminMemo(Map<String, Object> param);
 }

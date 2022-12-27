@@ -20,7 +20,7 @@ public interface UserDao {
 
 	void userJoin(Map<String, Object> param);
 
-	void removeUser(@Param("USER_CODE") String param);
+	void removeUser(@Param("USER_CODE") String userCode);
 
 	int findByUserCode(@Param("USER_CODE") String string);
 

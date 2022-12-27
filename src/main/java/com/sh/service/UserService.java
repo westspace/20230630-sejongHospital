@@ -10,7 +10,7 @@ public interface UserService {
 
 	Map<String, Object> getUserList();
 
-	Map<String, Object> removeUser(Map<String, Object> param);
+	Map<String, Object> removeUser(String userCode);
 
 	Map<String, Object> updateUser(Map<String, Object> param);
 

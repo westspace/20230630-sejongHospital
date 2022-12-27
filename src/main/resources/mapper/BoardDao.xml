@@ -16,11 +16,25 @@
 	</delete>
 
 	<select id="getNoticeBoard" resultType="map">
-		SELECT * FROM ADMIN_NOTICE_ARTICLE ORDER BY ARTICLE_CODE DESC LIMIT 4;
+		SELECT 
+			a.*,
+			ai.* 
+		FROM 
+			ADMIN_NOTICE_ARTICLE as a
+		 left join `ARTICLE_IMAGE` as ai
+			on a.ARTICLE_CODE = ai.ARTICLE_CODE
+		ORDER BY a.ARTICLE_CODE DESC LIMIT 4;
 	</select>
 
 	<select id="getNoticeAllList" resultType="map">
-		SELECT * FROM ADMIN_NOTICE_ARTICLE ORDER BY ARTICLE_CODE DESC;
+		SELECT 
+			a.*,
+			ai.* 
+		FROM 
+			ADMIN_NOTICE_ARTICLE as a
+		 left join `ARTICLE_IMAGE` as ai
+			on a.ARTICLE_CODE = ai.ARTICLE_CODE
+		ORDER BY a.ARTICLE_CODE DESC
 	</select>
 
 	<!-- 관리자 페이지 -->
@@ -44,13 +58,24 @@
 	</select>
 
 	<!-- 관리자 페이지 -->
-	<insert id="noticeArticle" parameterType="map">
+	<insert id="noticeArticle" parameterType="AdminNoticeArticle" useGeneratedKeys="true" keyProperty="ARTICLE_CODE">
 		INSERT INTO ADMIN_NOTICE_ARTICLE
-		SET BOARD_CODE = 1,
+			SET 
+		BOARD_CODE = 1,
 		USER_CODE = 1,
-		TITLE = #{noticeTitle},
-		BODY = #{noticeBody};
+		TITLE = #{TITLE},
+		BODY = #{BODY};
 	</insert>
+	
+	<insert id="noticeArticleImage" parameterType="map">
+		insert into ARTICLE_IMAGE
+		set IMAGE_PAHT = #{safeFile},
+		IMAGE_ORIGIN = #{originFileName},
+		BOARD_CODE = 1,
+		ARTICLE_CODE = #{article_code};
+	</insert>
+	
+	
 	
 	<select id="getAdminNoticeDetail" parameterType="string" resultType="map">
 		select 
@@ -62,14 +87,17 @@
 			A.BODY ,
 			U.NAME,
 			U.ROLE_CODE,
-			R.ROLE_NAME 
+			R.ROLE_NAME,
+			AI.* 
 		from 
 			admin_notice_article as A
 		left join `USER` as U
 			on A.USER_CODE = U.USER_CODE
 		left join `ROLE` as R
-		on U.ROLE_CODE = R.ROLE_CODE
-			WHERE A.ARTICLE_CODE = #{boardId};
+			on U.ROLE_CODE = R.ROLE_CODE
+		left join `ARTICLE_IMAGE` as AI
+			on A.ARTICLE_CODE = AI.ARTICLE_CODE
+		WHERE A.ARTICLE_CODE = #{boardId};
 	</select>
 	
 	<delete id="adminBoardRemove" parameterType="map">

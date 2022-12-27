@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 
+import com.sh.dto.AdminNoticeArticle;
+
 @Mapper
 public interface BoardDao {
 	List<Map<String, Object>> getBoard();
@@ -12,8 +14,10 @@ public interface BoardDao {
 	void article(Map<String, Object> param);
 	void removeArticle(Map<String, Object> param);
 	List<Map<String, Object>> getNoticeArticleList();
-	void noticeArticle(Map<String, Object> param);
+	//void noticeArticle(Map<String, Object> param);
 	List<Map<String, Object>> getNoticeAllList();
 	Map<String, Object> getAdminNoticeDetail(String boardId);
 	void adminBoardRemove(Map<String, Object> param);
+	void noticeArticle(AdminNoticeArticle article);
+	void noticeArticleImage(Map<String, Object> imageMap);
 }

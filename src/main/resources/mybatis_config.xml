@@ -5,5 +5,7 @@
 	<typeAliases>
 		<typeAlias type="com.sh.config.vo.ExternalFiles" alias="ExternalFiles" />
 		<typeAlias type="com.sh.dto.UserDTO" alias="User"/>
+		<typeAlias type="com.sh.dto.AdminNoticeArticle" alias="AdminNoticeArticle"/>
+		
 	</typeAliases>
 </configuration>

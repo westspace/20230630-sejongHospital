@@ -102,8 +102,12 @@ public class ExternalFilesConfiguration implements WebMvcConfigurer {
 				.addResourceLocations(PATH + externalFiles.getExternalJsPath());
 		registry.addResourceHandler(externalFiles.getInternalModulePath() + "**")
 				.addResourceLocations(PATH + externalFiles.getExternalModulePath());
+		
 		registry.addResourceHandler(externalFiles.getInternalImagesPath() + "**")
 				.addResourceLocations(PATH + externalFiles.getExternalImagesPath());
+
+		registry.addResourceHandler(externalFiles.getInternalArticleImagePath() + "**")
+				.addResourceLocations(PATH + externalFiles.getExternalArticleImagePath());
 
 	}
 
@@ -112,7 +116,8 @@ public class ExternalFilesConfiguration implements WebMvcConfigurer {
 		// 단 resource 로 시작하는 액션은 제외
 		registry.addInterceptor(beforeActionInterceptor).addPathPatterns("/**").excludePathPatterns("/resource/**")
 				.excludePathPatterns("/module/**").excludePathPatterns("/css/**").excludePathPatterns("/fonts/**")
-				.excludePathPatterns("/js/**").excludePathPatterns("/static/**").excludePathPatterns("/images/**");
+				.excludePathPatterns("/js/**").excludePathPatterns("/static/**").excludePathPatterns("/images/**")
+				.excludePathPatterns("/articmeImage/**");
 	}
 
 }

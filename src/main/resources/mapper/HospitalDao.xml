@@ -29,4 +29,11 @@
 	<select id="showHospitalByAreaList" parameterType="string" resultType="map">
 		SELECT * FROM HOSPITAL WHERE AREA = #{area};
 	</select>
+	
+	<update id="hospitalAdminMemo" parameterType="map">
+		UPDATE HOSPITAL
+		SET M_MEMO = #{MEMO}
+		WHERE HPID = #{HPID};
+	
+	</update>
 </mapper>

@@ -2,6 +2,7 @@ package com.sh.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +14,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.sh.common.Maps;
 import com.sh.dao.BoardDao;
+import com.sh.dto.AdminNoticeArticle;
 
 @Service
 public class BoardServiceImpl implements BoardService {
@@ -58,15 +60,38 @@ public class BoardServiceImpl implements BoardService {
 	}
 
 	@Override
-	public Map<String, Object> noticeArticle(Map<String, Object> param, MultipartHttpServletRequest mtfRequest) {
+	public Map<String, Object> getNoticeAllList() {
+		List<Map<String, Object>> result = boardDao.getNoticeAllList();
+		return Maps.json("S-1", "ok", result);
+	}
+
+	@Override
+	public Map<String, Object> getAdminNoticeDetail(String boardId) {
+		Map<String, Object> result = boardDao.getAdminNoticeDetail(boardId);
+
+		return Maps.json("S-1", "ok", result);
+	}
+
+	@Override
+	public Map adminBoardRemove(Map<String, Object> param) {
+		// TODO Auto-generated method stub
+
+		boardDao.adminBoardRemove(param);
+		return Maps.json("S-1", "ok");
+	}
+
+	@Override
+	public Map<String, Object> noticeArticle(Map<String, Object> param, MultipartHttpServletRequest mtfRequest,
+			AdminNoticeArticle article) {
 		// TODO Auto-generated method stub
 
 		System.out.println("param : " + param);
-		
+		System.out.println("AdminNoticeArticle : " + article);
+
 		List<MultipartFile> fileList = mtfRequest.getFiles("formFiles");
 
 		param.put("USER_CODE", 1);
-		
+
 		if (fileList.size() > 0) {
 			for (MultipartFile mf : fileList) {
 				String originFileName = mf.getOriginalFilename(); // 원본 파일 명
@@ -79,7 +104,19 @@ public class BoardServiceImpl implements BoardService {
 
 				try {
 					mf.transferTo(new File(safeFile));
+					
+					boardDao.noticeArticle(article);
+					
+					Map<String, Object> imageMap = new HashMap<>();
+					
+					imageMap.put("originFileName", originFileName);
+					imageMap.put("safeFile", safeFile);
+					imageMap.put("article_code", article.getARTICLE_CODE());
 
+					boardDao.noticeArticleImage(imageMap);
+
+					return Maps.json("S-1", "ok");
+					
 				} catch (IllegalStateException e) {
 					System.out.println("[ noticeArticle IllegalStateException ] : " + e.getMessage());
 					e.printStackTrace();
@@ -91,29 +128,10 @@ public class BoardServiceImpl implements BoardService {
 			}
 		}
 
-		boardDao.noticeArticle(param);
-
-		return Maps.json("S-1", "ok");
-	}
-
-	@Override
-	public Map<String, Object> getNoticeAllList() {
-		List<Map<String, Object>> result = boardDao.getNoticeAllList();
-		return Maps.json("S-1", "ok", result);
-	}
-
-	@Override
-	public Map<String, Object> getAdminNoticeDetail(String boardId) {
-		Map<String, Object> result = boardDao.getAdminNoticeDetail(boardId);
+		boardDao.noticeArticle(article);
 		
-		return Maps.json("S-1", "ok", result);
-	}
+		System.out.println(article.getARTICLE_CODE());
 
-	@Override
-	public Map adminBoardRemove(Map<String, Object> param) {
-		// TODO Auto-generated method stub
-		
-		boardDao.adminBoardRemove(param);
 		return Maps.json("S-1", "ok");
 	}
 }

@@ -43,10 +43,20 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public Map<String, Object> userJoin(Map<String, Object> param) {
 
+		if (	   param.get("USER_ID").toString().trim().equals("") 
+				|| param.get("USER_PW").toString().trim().equals("")
+				|| param.get("NAME").toString().trim().equals("")
+				|| param.get("DEPARTMENT").toString().trim().equals("")
+				|| param.get("AGENCY").toString().trim().equals("")
+				|| param.get("ROLE").toString().trim().equals("")
+		) {
+			return Maps.json("F-1", "회원정보를 입력해 주세요.");
+		}
+
 		int count = userDao.findById(param.get("USER_ID").toString());
 
 		if (count > 0)
-			return Maps.json("F-1", "이미 사용중인 아이디 입니다.");
+			return Maps.json("F-2", "이미 사용중인 아이디 입니다.");
 
 		String encodedPassword = passwordEncoder.encode(param.get("USER_PW").toString());
 
@@ -58,16 +68,11 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public Map<String, Object> removeUser(Map<String, Object> param) {
+	public Map<String, Object> removeUser(String userCode) {
 
-		int user = userDao.findByUserCode(param.get("USER_CODE").toString());
+		userDao.removeUser(userCode);
 
-		if (user == 0)
-			return Maps.json("F-1", "이미 삭제되었거나 존재하지 않은 회원 입니다.");
-
-		userDao.removeUser(param.get("USER_CODE").toString());
-
-		return Maps.json("S-1", param.get("USER_CODE").toString() + "번 회원이 삭제 되었습니다.");
+		return Maps.json("S-1", userCode + "번 회원이 삭제 되었습니다.");
 	}
 
 	@Override
@@ -78,15 +83,15 @@ public class UserServiceImpl implements UserService {
 
 		if (user.get("USER_TYPE").toString().equals("1")) {
 			System.out.println("0으로 변경");
-			
+
 			userDao.userAccountStop(param);
-			
+
 			return Maps.json("S-1", "해당 계정은 정지 되었습니다.");
 		} else {
 			System.out.println("1으로 변경");
-			
+
 			userDao.userAccountStart(param);
-			
+
 			return Maps.json("S-1", "해당 계정으로 로그인 할 수 있어요~");
 		}
 	}

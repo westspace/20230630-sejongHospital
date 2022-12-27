@@ -35,6 +35,15 @@ public class HospitalController {
 		return result;
 	}
 	
+	/* 관리자 병원 메모 */
+	@RequestMapping(value = "/api/hospitalAdminMemo", method = { RequestMethod.GET, RequestMethod.POST })
+	public Map<String, Object> hospitalAdminMemo(@RequestParam Map<String, Object> param) {
+
+		Map<String, Object> result = hospitalService.hospitalAdminMemo(param);
+
+		return result;
+	}
+	
 	@RequestMapping(value = "/api/removeHospital", method = { RequestMethod.GET, RequestMethod.POST })
 	public Map<String, Object> removeHospital(@RequestParam String hpid) {
 

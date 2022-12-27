@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.sh.dto.AdminNoticeArticle;
 import com.sh.dto.CustomUserDetails;
 import com.sh.service.BoardService;
 
@@ -54,6 +55,7 @@ public class AdminBoardController {
 	/* 관리자 공지 등록 */
 	@RequestMapping("/api/noticeArticle")
 	public Map<String, Object> noticeArticle(@RequestParam Map<String, Object> param,
+			AdminNoticeArticle article,
 			MultipartHttpServletRequest mtfRequest, @AuthenticationPrincipal CustomUserDetails authUser)
 			throws IOException {
 
@@ -61,7 +63,7 @@ public class AdminBoardController {
 
 		// if (authUser != null) {
 		// System.out.println("authUser : " + authUser.getUserCode());
-		result = boardService.noticeArticle(param, mtfRequest);
+		result = boardService.noticeArticle(param, mtfRequest, article);
 		// }
 
 		return result;

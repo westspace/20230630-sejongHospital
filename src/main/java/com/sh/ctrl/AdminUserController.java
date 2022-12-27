@@ -3,6 +3,7 @@ package com.sh.ctrl;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,13 +29,12 @@ public class AdminUserController {
 	}
 
 	/* 관리자가 유저 추가 */
-	@RequestMapping(value = "/api/userJoin", method = { RequestMethod.GET, RequestMethod.POST })
-	public Map<String, Object> regiUser(@RequestParam Map<String, Object> param) {
+	@RequestMapping(value = "/api/userJoin", method = { RequestMethod.POST })
+	public Map<String, Object> regiUser(@RequestBody Map<String, Object> param) {
 
 		System.out.println("[ regiUser ] : " + param);
 
 		Map<String, Object> result = userService.userJoin(param);
-
 		return result;
 	}
 
@@ -50,12 +50,12 @@ public class AdminUserController {
 	}
 
 	/* 관리자가 유저 삭제 */
-	@RequestMapping("/api/removeUser")
-	public Map<String, Object> removeUser(@RequestParam Map<String, Object> param) {
+	@RequestMapping(value = "/api/removeUser", method = { RequestMethod.POST })
+	public Map<String, Object> removeUser(@RequestParam String userCode) {
 
-		System.out.println("[ removeUser ] : " + param);
+		System.out.println("[ removeUser ] : " + userCode);
 
-		Map<String, Object> result = userService.removeUser(param);
+		Map<String, Object> result = userService.removeUser(userCode);
 
 		return result;
 	}

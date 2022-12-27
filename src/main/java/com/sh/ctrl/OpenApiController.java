@@ -112,6 +112,7 @@ public class OpenApiController {
 			}
 			rd.close();
 			conn.disconnect();
+			
 			// System.out.println(sb.toString());
 
 			JSONObject json = XML.toJSONObject(sb.toString());
@@ -122,7 +123,6 @@ public class OpenApiController {
 			
 			Map<String, Object> result = hospitalService.showHospitalByAreaList(area);
 		
-			
 			org.json.simple.JSONObject jo = new org.json.simple.JSONObject();
 			String data = jo.toJSONString(result);
 			
@@ -142,11 +142,11 @@ public class OpenApiController {
 		
 				for (int j = 0; j < saveHospitalArr.size(); j++) { //save data
 					org.json.simple.JSONObject saveObjectArray = (org.json.simple.JSONObject) saveHospitalArr.get(j);
-					System.out.println("저장된 데이터 : "  +saveObjectArray.get("HPID"));
+					//System.out.println("저장된 데이터 : "  +saveObjectArray.get("HPID"));
 					
 					for (int i = 0; i < item.length(); i++) { // open api
 						JSONObject objectInArray = (JSONObject) item.get(i);
-						System.out.println("open API items : " + objectInArray.get("hpid"));
+						//System.out.println("open API items : " + objectInArray.get("hpid"));
 						
 						if(saveObjectArray.get("HPID").equals(objectInArray.get("hpid"))) {
 							
@@ -164,7 +164,8 @@ public class OpenApiController {
 				// TODO: handle exception
 				System.out.println("[ getEmrrmRltmUsefulSckbdInfoInqire error ] : " + e.getMessage());
 			}
-			System.out.println("validChkHpid : " + validChkHpid);
+			
+			//System.out.println("validChkHpid : " + validChkHpid);
 
 			return Maps.json("S-1", "ok", validChkHpid);
 		}
@@ -294,13 +295,15 @@ public class OpenApiController {
 	
 	//응급의료기관 메시지.
 	@RequestMapping(value = "/api/getEmrrmSrsillDissMsgInqire", method = { RequestMethod.GET, RequestMethod.POST })
-	public Map<String, Object> getEmrrmSrsillDissMsgInqire() throws IOException {
+	public Map<String, Object> getEmrrmSrsillDissMsgInqire(@RequestParam String hpid) throws IOException {
 
+		System.out.println("hpid : " + hpid);
+		
 		StringBuilder urlBuilder = new StringBuilder("http://apis.data.go.kr/B552657/ErmctInfoInqireService/getEmrrmSrsillDissMsgInqire"); /*URL*/
         urlBuilder.append("?" + URLEncoder.encode("serviceKey","UTF-8") +  "=" + ApiUrl.API_KEY); /*Service Key*/
         urlBuilder.append("&" + URLEncoder.encode("pageNo","UTF-8") + "=" + URLEncoder.encode("1", "UTF-8")); /*페이지번호*/
         urlBuilder.append("&" + URLEncoder.encode("numOfRows","UTF-8") + "=" + URLEncoder.encode("10", "UTF-8")); /*한 페이지 결과 수*/
-        urlBuilder.append("&" + URLEncoder.encode("HPID","UTF-8") + "=" + URLEncoder.encode("A1800441", "UTF-8")); /*기관ID*/
+        urlBuilder.append("&" + URLEncoder.encode("HPID","UTF-8") + "=" + URLEncoder.encode(hpid, "UTF-8")); /*기관ID*/
         urlBuilder.append("&" + URLEncoder.encode("QN","UTF-8") + "=" + URLEncoder.encode("", "UTF-8")); /*기관명*/
         urlBuilder.append("&" + URLEncoder.encode("Q0","UTF-8") + "=" + URLEncoder.encode("", "UTF-8")); /*주소(시도)*/
         urlBuilder.append("&" + URLEncoder.encode("Q1","UTF-8") + "=" + URLEncoder.encode("", "UTF-8")); /*주소(시군구)*/
@@ -325,8 +328,9 @@ public class OpenApiController {
         
         org.json.JSONObject json = XML.toJSONObject(sb.toString());
 		String jsonStr = json.toString(4);
+		
 		System.out.println(jsonStr);
-
-		return Maps.json("", "");
+		
+		return Maps.json("S-1", "ok", jsonStr);
 	}
 }

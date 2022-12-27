@@ -4,6 +4,8 @@ import java.util.Map;
 
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.sh.dto.AdminNoticeArticle;
+
 public interface BoardService {
 
 	Map<String, Object> getBoard();
@@ -16,12 +18,13 @@ public interface BoardService {
 
 	Map<String, Object> getNoticeArticleList();
 
-	Map<String, Object> noticeArticle(Map<String, Object> param, MultipartHttpServletRequest mtfRequest);
-
 	Map<String, Object> getNoticeAllList();
 
 	Map<String, Object> getAdminNoticeDetail(String boardId);
 
 	Map adminBoardRemove(Map<String, Object> param);
+
+	Map<String, Object> noticeArticle(Map<String, Object> param, MultipartHttpServletRequest mtfRequest,
+			AdminNoticeArticle article);
 
 }

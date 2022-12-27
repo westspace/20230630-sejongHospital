@@ -48,5 +48,10 @@ public class ExternalFiles {
 	private String externalTemplatesPath;
 	@Value("${files.internal.templates}")
 	private String internalTemplatesPath;
+	
+	@Value("${files.external.articleImage}")
+	private String externalArticleImagePath;
+	@Value("${files.internal.articleImage}")
+	private String internalArticleImagePath;
 
 }

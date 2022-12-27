@@ -58,4 +58,12 @@ public class HospitalServiceImpl implements HospitalService {
 		return Maps.json("S-1", "ok", result);
 	}
 
+	@Override
+	public Map<String, Object> hospitalAdminMemo(Map<String, Object> param) {
+		// TODO Auto-generated method stub
+		 hospitalDao.hospitalAdminMemo(param);
+		 
+		 return Maps.json("S-1", "해당 병원에 메모가 등록되었습니다.");
+	}
+
 }
