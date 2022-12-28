@@ -45,6 +45,7 @@
 			A.USER_CODE,
 			A.REG_DATE ,
 			A.TITLE ,
+			A.LABEL ,
 			U.NAME,
 			U.ROLE_CODE,
 			R.ROLE_NAME 
@@ -62,21 +63,20 @@
 		INSERT INTO ADMIN_NOTICE_ARTICLE
 			SET 
 		BOARD_CODE = 1,
-		USER_CODE = 1,
+		USER_CODE = #{USER_CODE},
 		TITLE = #{TITLE},
-		BODY = #{BODY};
+		BODY = #{BODY},
+		LABEL = #{LABEL};
 	</insert>
 	
 	<insert id="noticeArticleImage" parameterType="map">
 		insert into ARTICLE_IMAGE
-		set IMAGE_PAHT = #{safeFile},
+		set IMAGE_PATH = #{safeFile},
 		IMAGE_ORIGIN = #{originFileName},
 		BOARD_CODE = 1,
 		ARTICLE_CODE = #{article_code};
 	</insert>
-	
-	
-	
+
 	<select id="getAdminNoticeDetail" parameterType="string" resultType="map">
 		select 
 			A.ARTICLE_CODE ,
@@ -85,6 +85,7 @@
 			A.REG_DATE ,
 			A.TITLE ,
 			A.BODY ,
+			A.LABEL ,
 			U.NAME,
 			U.ROLE_CODE,
 			R.ROLE_NAME,
@@ -103,4 +104,36 @@
 	<delete id="adminBoardRemove" parameterType="map">
 		DELETE FROM ADMIN_NOTICE_ARTICLE WHERE ARTICLE_CODE = #{ARTICLE_CODE};
 	</delete>
+	
+	<delete id="adminBoardImageClear" parameterType="map">
+		DELETE FROM ARTICLE_IMAGE
+		WHERE ARTICLE_CODE = #{ARTICLE_CODE} AND BOARD_CODE = 1;
+	</delete>
+	
+	<update id="noticeModify" parameterType="AdminNoticeArticle">
+		UPDATE ADMIN_NOTICE_ARTICLE
+			SET
+		TITLE = #{TITLE},
+		BODY = #{BODY},
+		LABEL = #{LABEL}
+			WHERE 
+		BOARD_CODE = 1 AND ARTICLE_CODE = #{ARTICLE_CODE};
+	</update>
+	
+	<select id="findByImageCode" parameterType="AdminNoticeArticle" resultType="map">
+		SELECT * FROM ARTICLE_IMAGE 
+			WHERE 
+		BOARD_CODE = 1
+			AND 
+		ARTICLE_CODE = #{ARTICLE_CODE};
+	</select>
+	
+	<update id="noticeArticleImageClearUpdate" parameterType="map">
+		UPDATE ARTICLE_IMAGE
+			SET 
+		IMAGE_PATH = #{safeFile},
+		IMAGE_ORIGIN = #{originFileName}
+			WHERE 
+		BOARD_CODE = 1 AND ARTICLE_CODE = #{article_code};
+	</update>
 </mapper>

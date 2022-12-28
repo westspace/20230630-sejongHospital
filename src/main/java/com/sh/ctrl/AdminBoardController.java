@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.sh.dto.AdminNoticeArticle;
@@ -54,17 +55,33 @@ public class AdminBoardController {
 
 	/* 관리자 공지 등록 */
 	@RequestMapping("/api/noticeArticle")
-	public Map<String, Object> noticeArticle(@RequestParam Map<String, Object> param,
-			AdminNoticeArticle article,
-			MultipartHttpServletRequest mtfRequest, @AuthenticationPrincipal CustomUserDetails authUser)
-			throws IOException {
+	public Map<String, Object> noticeArticle(AdminNoticeArticle article, MultipartHttpServletRequest mtfRequest,
+			@AuthenticationPrincipal CustomUserDetails authUser) throws IOException {
 
 		Map<String, Object> result = null;
 
-		// if (authUser != null) {
-		// System.out.println("authUser : " + authUser.getUserCode());
-		result = boardService.noticeArticle(param, mtfRequest, article);
-		// }
+		if (authUser != null) {
+			System.out.println("authUser : " + authUser.getUserCode());
+			article.setUSER_CODE(authUser.getUserCode());
+			result = boardService.noticeArticle(mtfRequest, article);
+		}
+
+		return result;
+	}
+	
+	/* 관리자 공지 수정 */
+	@RequestMapping("/api/noticeModify")
+	public Map<String, Object> noticeModify(AdminNoticeArticle article,
+			@RequestParam(value="formFiles", required = false) MultipartFile mtfRequest,
+			@AuthenticationPrincipal CustomUserDetails authUser) throws IOException {
+
+		Map<String, Object> result = null;
+
+		if (authUser != null) {
+			System.out.println("authUser : " + authUser.getUserCode());
+			article.setUSER_CODE(authUser.getUserCode());
+			result = boardService.noticeModify(mtfRequest, article);
+		}
 
 		return result;
 	}
@@ -75,7 +92,7 @@ public class AdminBoardController {
 			@AuthenticationPrincipal CustomUserDetails authUser) throws IOException {
 
 		System.out.println("param : " + param);
-		
+
 		Map result = boardService.adminBoardRemove(param);
 
 		return result;

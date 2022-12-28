@@ -21,19 +21,19 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 	public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException exc)
 			throws IOException, ServletException {
 
-//		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-//		if (auth != null) {
-//			LOG.warn("User: " + auth.getName() + " attempted to access the protected URL: " + request.getRequestURI());
-//		}
-//
-//		//response.sendRedirect(request.getContextPath() + "/accessDenied");
-//		response.setContentType("text/html; charset=UTF-8");
-//		 
-//		PrintWriter out = response.getWriter();
-//		 
-//		out.println("<script>alert('권한이 없는 계정 입니다'); location.replace('/');</script>");
-//		 
-//		out.flush();
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (auth != null) {
+			LOG.warn("User: " + auth.getName() + " attempted to access the protected URL: " + request.getRequestURI());
+		}
+
+		// response.sendRedirect(request.getContextPath() + "/accessDenied");
+		response.setContentType("text/html; charset=UTF-8");
+
+		PrintWriter out = response.getWriter();
+
+		out.println("<script>alert('권한이 없는 계정 입니다'); location.replace('/');</script>");
+
+		out.flush();
 
 		//response.sendRedirect("/");
 	}

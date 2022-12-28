@@ -14,4 +14,5 @@ public class AdminNoticeArticle {
 	private String REG_DATE;
 	private String TITLE;
 	private String BODY;
+	private String LABEL;
 }

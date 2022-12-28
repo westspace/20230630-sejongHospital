@@ -2,6 +2,7 @@ package com.sh.service;
 
 import java.util.Map;
 
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.sh.dto.AdminNoticeArticle;
@@ -24,7 +25,8 @@ public interface BoardService {
 
 	Map adminBoardRemove(Map<String, Object> param);
 
-	Map<String, Object> noticeArticle(Map<String, Object> param, MultipartHttpServletRequest mtfRequest,
-			AdminNoticeArticle article);
+	Map<String, Object> noticeArticle(MultipartHttpServletRequest mtfRequest, AdminNoticeArticle article);
+
+	Map<String, Object> noticeModify(MultipartFile mtfRequest, AdminNoticeArticle article);
 
 }

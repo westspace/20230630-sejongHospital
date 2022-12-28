@@ -54,6 +54,19 @@ public class AdminHomeController {
 
 		return modelView;
 	}
+	
+	@RequestMapping(value = "/admin/noticeModify/{boardId}", method = { RequestMethod.GET, RequestMethod.POST })
+	public ModelAndView adminNoticeModifyView(ModelAndView modelView, @PathVariable String boardId) throws Exception {
+
+		System.out.println("boardId : " + boardId);
+		
+		Map<String, Object> result = boardService.getAdminNoticeDetail(boardId);
+
+		modelView.addObject("boardData", result);
+		modelView.setViewName("admiNoticeModify");
+
+		return modelView;
+	}
 
 	@RequestMapping(value = "/admin/hospital", method = { RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView adminHospitalView(ModelAndView modelView) throws Exception {

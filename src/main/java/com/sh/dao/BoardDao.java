@@ -20,4 +20,8 @@ public interface BoardDao {
 	void adminBoardRemove(Map<String, Object> param);
 	void noticeArticle(AdminNoticeArticle article);
 	void noticeArticleImage(Map<String, Object> imageMap);
+	void adminBoardImageClear(Map<String, Object> param);
+	void noticeModify(AdminNoticeArticle article);
+	Map<String, Object> findByImageCode(AdminNoticeArticle article);
+	void noticeArticleImageClearUpdate(Map<String, Object> imageMap);
 }

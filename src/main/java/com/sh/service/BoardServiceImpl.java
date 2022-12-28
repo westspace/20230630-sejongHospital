@@ -74,23 +74,46 @@ public class BoardServiceImpl implements BoardService {
 
 	@Override
 	public Map adminBoardRemove(Map<String, Object> param) {
-		// TODO Auto-generated method stub
+		System.out.println(" adminBoardRemove param : " + param);
 
-		boardDao.adminBoardRemove(param);
-		return Maps.json("S-1", "ok");
+		if (param.get("IMAGE_CODE") == null) {
+			// System.out.println("이미지 없는 게시글");
+			boardDao.adminBoardRemove(param);
+			return Maps.json("S-1", "해당 게시글이 삭제되었습니다.");
+		}
+
+		try {
+			File file = new File(param.get("IMAGE_PATH").toString());
+
+			if (file.exists()) {
+				if (file.delete()) {
+					System.out.println("파일삭제 성공");
+					// ARTICLE_CODE
+				} else {
+					System.out.println("파일삭제 실패");
+				}
+			} else {
+				System.out.println("파일이 존재하지 않습니다.");
+			}
+
+			boardDao.adminBoardImageClear(param);
+			boardDao.adminBoardRemove(param);
+
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println("[ adminBoardRemove ] 파일 삭제중 에러가 발생했습니다. " + e.getMessage());
+		}
+
+		return Maps.json("S-1", "해당 게시글이 삭제되었습니다.");
 	}
 
 	@Override
-	public Map<String, Object> noticeArticle(Map<String, Object> param, MultipartHttpServletRequest mtfRequest,
-			AdminNoticeArticle article) {
+	public Map<String, Object> noticeArticle(MultipartHttpServletRequest mtfRequest, AdminNoticeArticle article) {
 		// TODO Auto-generated method stub
 
-		System.out.println("param : " + param);
 		System.out.println("AdminNoticeArticle : " + article);
 
 		List<MultipartFile> fileList = mtfRequest.getFiles("formFiles");
-
-		param.put("USER_CODE", 1);
 
 		if (fileList.size() > 0) {
 			for (MultipartFile mf : fileList) {
@@ -104,19 +127,19 @@ public class BoardServiceImpl implements BoardService {
 
 				try {
 					mf.transferTo(new File(safeFile));
-					
+
 					boardDao.noticeArticle(article);
-					
+
 					Map<String, Object> imageMap = new HashMap<>();
-					
+
 					imageMap.put("originFileName", originFileName);
 					imageMap.put("safeFile", safeFile);
 					imageMap.put("article_code", article.getARTICLE_CODE());
 
 					boardDao.noticeArticleImage(imageMap);
 
-					return Maps.json("S-1", "ok");
-					
+					return Maps.json("S-1", "게시글이 등록되었습니다.");
+
 				} catch (IllegalStateException e) {
 					System.out.println("[ noticeArticle IllegalStateException ] : " + e.getMessage());
 					e.printStackTrace();
@@ -129,9 +152,63 @@ public class BoardServiceImpl implements BoardService {
 		}
 
 		boardDao.noticeArticle(article);
-		
+
 		System.out.println(article.getARTICLE_CODE());
 
-		return Maps.json("S-1", "ok");
+		return Maps.json("S-1", "게시글이 등록되었습니다.");
+	}
+
+	@Override
+	public Map<String, Object> noticeModify(MultipartFile mtfRequest, AdminNoticeArticle article) {
+		System.out.println("noticeModify : " + article);
+
+		if (mtfRequest != null) {
+			String originFileName = mtfRequest.getOriginalFilename(); // 원본 파일 명
+			// long fileSize = fileList.getSize(); // 파일 사이즈
+			String safeFile = path + "articleImage/" + System.currentTimeMillis() + originFileName;
+
+			try {
+
+				mtfRequest.transferTo(new File(safeFile));
+
+				Map<String, Object> result = boardDao.findByImageCode(article);
+				Map<String, Object> imageMap = new HashMap<>();
+				imageMap.put("originFileName", originFileName);
+				imageMap.put("safeFile", safeFile);
+				imageMap.put("article_code", article.getARTICLE_CODE());
+
+				if (result != null) {
+					// 등록된 이미지가 있음 
+					// 이미지 삭제 후 DB 업데이트 해줘야 됨
+					
+					File file = new File(result.get("IMAGE_PATH").toString());
+
+					if (file.exists()) {
+						if (file.delete()) {
+							System.out.println("파일삭제 성공");
+						} else {
+							System.out.println("파일삭제 실패");
+						}
+					} else {
+						System.out.println("파일이 존재하지 않습니다.");
+					}
+					
+					boardDao.noticeArticleImageClearUpdate(imageMap);
+
+					return Maps.json("S-1", "관리자 공지사항 수정 완료");
+				}
+
+				boardDao.noticeArticleImage(imageMap);
+				
+			} catch (Exception e) {
+				// TODO: handle exception
+				System.out.println("notify modify : " + e.getMessage());
+			}
+
+		}
+
+		boardDao.noticeModify(article);
+
+		return Maps.json("S-1", "관리자 공지사항 수정 완료");
 	}
 }

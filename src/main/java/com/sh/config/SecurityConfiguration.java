@@ -39,7 +39,7 @@ public class SecurityConfiguration {
           */
          .authorizeRequests().antMatchers("/api/*","/api/**",
     		 "/login", "/join", "/test", "/admin", "/admin/**", "/articleImage/**", "/articleImage/*", "/articleImage").permitAll()
-	        //.antMatchers("/admin/**", "/admin").hasAuthority("ADMIN")
+	        .antMatchers("/admin/**", "/admin").hasAuthority("관리자")
 	        .anyRequest().authenticated()
         	.and()
         .formLogin()
