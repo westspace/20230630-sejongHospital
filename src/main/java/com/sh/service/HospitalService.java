@@ -14,4 +14,8 @@ public interface HospitalService {
 
 	Map<String, Object> hospitalAdminMemo(Map<String, Object> param);
 
+	Map<String, Object> findByHospital(String hName);
+
+	Map<String, Object> hospitalMemo(Map<String, Object> param);
+
 }

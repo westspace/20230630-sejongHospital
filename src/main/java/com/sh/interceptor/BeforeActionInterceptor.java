@@ -35,7 +35,8 @@ public class BeforeActionInterceptor implements HandlerInterceptor {
 			ArrayList<UserDTO> user = userDao.findByUserID(userDetails.getUsername().toString());
 
 			for (GrantedAuthority user_auth : userDetails.getAuthorities()) {
-				if (user_auth.toString().equals("ADMIN")) {
+				if (user_auth.toString().equals("관리자")) {
+					//System.out.println("user_auth : " + user_auth);
 					request.setAttribute("admin", true);
 				}
 			}
@@ -43,6 +44,7 @@ public class BeforeActionInterceptor implements HandlerInterceptor {
 			request.setAttribute("isLogined", true);
 			request.setAttribute("username", user.get(0).getNAME());
 			request.setAttribute("agency", user.get(0).getAGENCY());
+			request.setAttribute("rolename", user.get(0).getROLE_NAME());
 
 		} else {
 			request.setAttribute("isLogined", false);

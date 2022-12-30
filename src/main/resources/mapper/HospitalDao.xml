@@ -36,4 +36,14 @@
 		WHERE HPID = #{HPID};
 	
 	</update>
+	
+	<select id="findByHospital" parameterType="string" resultType="map">
+		SELECT * FROM HOSPITAL WHERE DUTYNAME = #{hName};
+	</select>
+	
+	<update id="hospitalMemo" parameterType="map">
+		UPDATE HOSPITAL
+		SET H_MEMO = #{hMemo}
+		WHERE HPID = #{hpid};
+	</update>
 </mapper>

@@ -25,7 +25,7 @@ public class HospitalServiceImpl implements HospitalService {
 
 		if (hCount > 0) {
 			System.out.println("이미 존재하는 병원");
-			return Maps.json("F-1", "already hospital");
+			return Maps.json("F-1", "이미 저장된 병원 입니다.");
 		}
 
 		hospitalDao.saveHospital(param);
@@ -52,18 +52,34 @@ public class HospitalServiceImpl implements HospitalService {
 	public Map<String, Object> showHospitalByAreaList(String area) {
 		// TODO Auto-generated method stub
 		System.out.println(" [ area ] " + area);
-		
+
 		List<Map<String, Object>> result = hospitalDao.showHospitalByAreaList(area);
-		
+
 		return Maps.json("S-1", "ok", result);
 	}
 
 	@Override
 	public Map<String, Object> hospitalAdminMemo(Map<String, Object> param) {
 		// TODO Auto-generated method stub
-		 hospitalDao.hospitalAdminMemo(param);
-		 
-		 return Maps.json("S-1", "해당 병원에 메모가 등록되었습니다.");
+		hospitalDao.hospitalAdminMemo(param);
+
+		return Maps.json("S-1", "해당 병원에 메모가 등록되었습니다.");
+	}
+
+	@Override
+	public Map<String, Object> findByHospital(String hName) {
+		Map<String, Object> result = hospitalDao.findByHospital(hName);
+
+		return Maps.json("S-1", "ok", result);
+	}
+
+	@Override
+	public Map<String, Object> hospitalMemo(Map<String, Object> param) {
+		// TODO Auto-generated method stub
+		System.out.println("param : " + param);
+		hospitalDao.hospitalMemo(param);
+		
+		return Maps.json("S-1", "ok");
 	}
 
 }

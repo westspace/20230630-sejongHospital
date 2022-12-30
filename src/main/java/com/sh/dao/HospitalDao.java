@@ -19,4 +19,8 @@ public interface HospitalDao {
 	List<Map<String, Object>> showHospitalByAreaList(String area);
 
 	void hospitalAdminMemo(Map<String, Object> param);
+
+	Map<String, Object> findByHospital(String hName);
+
+	void hospitalMemo(Map<String, Object> param);
 }
