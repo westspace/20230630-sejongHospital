@@ -14,4 +14,10 @@ public interface UserService {
 
 	Map<String, Object> updateUser(Map<String, Object> param);
 
+	Map<String, Object> bookmark(String hpid, String userCode);
+
+	boolean findByBookMark(String object);
+
+	Map<String, Object> getUserBookMarkData();
+
 }

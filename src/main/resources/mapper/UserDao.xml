@@ -91,5 +91,26 @@
 		UPDATE `USER` SET USER_TYPE = 1 WHERE ID = #{USER_CODE}
 	</update>
 
-
+	<select id="findByBookmarkForUser" parameterType="map" resultType="map">
+		select * from BOOK_MARK where USER_CODE = #{userCode} and HOSPITAL_HPID = #{hpid};
+	</select>
+	
+	<insert id="bookmark" parameterType="map">
+		insert into BOOK_MARK SET USER_CODE = #{userCode}, HOSPITAL_HPID = #{hpid};
+	</insert>
+	
+	<delete id="bookmarkClear" parameterType="map">
+		delete from BOOK_MARK WHERE USER_CODE = #{userCode} and HOSPITAL_HPID = #{hpid}; 
+		
+	</delete>
+	
+	<select id="getUserBookMarkData" parameterType="map" resultType="map">
+		select 
+			h.*
+		from 
+			book_mark as b
+		join hospital as h
+			on b.HOSPITAL_HPID = h.HPID 
+		where USER_CODE = #{userCode};
+	</select>
 </mapper>

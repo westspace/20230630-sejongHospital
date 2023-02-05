@@ -31,4 +31,12 @@ public interface UserDao {
 	void userAccountStart(Map<String, Object> param);
 
 	public ArrayList<UserDTO> findByUserID(String username);
+
+	Map<String, Object> findByBookmarkForUser(Map userData);
+
+	void bookmark(Map userData);
+
+	void bookmarkClear(Map userData);
+
+	List<Map<String, Object>> getUserBookMarkData(Map<String, Object> map);
 }
