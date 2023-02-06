@@ -106,7 +106,8 @@
 	
 	<select id="getUserBookMarkData" parameterType="map" resultType="map">
 		select 
-			h.*
+			h.HPID,
+			h.AREA
 		from 
 			book_mark as b
 		join hospital as h

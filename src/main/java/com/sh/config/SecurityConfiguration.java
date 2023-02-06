@@ -38,7 +38,7 @@ public class SecurityConfiguration {
          /*
           */
          .authorizeRequests().antMatchers("/api/*","/api/**",
-    		 "/login", "/join", "/test", "/admin", "/admin/**", "/articleImage/**", "/articleImage/*", "/articleImage").permitAll()
+    		 "/login", "/join", "/test", "/test/**", "/admin", "/admin/**", "/articleImage/**", "/articleImage/*", "/articleImage").permitAll()
 	        .antMatchers("/admin/**", "/admin").hasAnyAuthority("관리자", "병원담당자")
 	        .anyRequest().authenticated()
         	.and()

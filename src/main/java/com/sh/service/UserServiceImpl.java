@@ -134,14 +134,14 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public Map<String, Object> getUserBookMarkData() {
+	public List<Map<String, Object>> getUserBookMarkData() {
 	
 		Map<String, Object> map = new HashMap();
 		map.put("userCode", 1);
 		
 		List<Map<String, Object>> result = userDao.getUserBookMarkData(map);
 		
-		System.out.println("result : " + result);
-		return Maps.json("S-1", "ok", result);
+//		System.out.println("result : " + result);
+		return result;
 	}
 }

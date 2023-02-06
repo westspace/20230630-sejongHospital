@@ -57,7 +57,7 @@ public class HomeController {
 	public ModelAndView hospitalDetailView(ModelAndView modelView, @PathVariable String hpid) {
 
 		System.out.println("hpid : " + hpid);
-		
+
 		modelView.setViewName("hospitalDetail");
 		return modelView;
 	}

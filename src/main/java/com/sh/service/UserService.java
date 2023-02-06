@@ -1,5 +1,6 @@
 package com.sh.service;
 
+import java.util.List;
 import java.util.Map;
 
 public interface UserService {
@@ -18,6 +19,6 @@ public interface UserService {
 
 	boolean findByBookMark(String object);
 
-	Map<String, Object> getUserBookMarkData();
+	List<Map<String, Object>> getUserBookMarkData();
 
 }

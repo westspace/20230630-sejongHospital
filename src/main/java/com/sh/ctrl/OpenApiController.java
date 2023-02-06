@@ -6,14 +6,15 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -354,23 +355,43 @@ public class OpenApiController {
 
 	@RequestMapping("/api/getUserBookMarkData")
 	public Map<String, Object> getUserBookMarkData(@AuthenticationPrincipal CustomUserDetails authUser)
-			throws IOException, ParseException {
+			throws IOException {
 
-		Map<String, Object> result = userService.getUserBookMarkData();
+		List<Map<String, Object>> list = userService.getUserBookMarkData();
+		System.out.println("list : " + list);
 
+		List<String> areaList = new ArrayList<>();
+		List<String> hpList = new ArrayList<>();
 
-		try {
-			org.json.simple.JSONObject asfasfasf = (org.json.simple.JSONObject) result.get("data");
-			
-			System.out.println("asfasfasf : " + asfasfasf);
-		} catch (Exception e) {
-			// TODO: handle exception
+		for (int i = 0; i < list.size(); i++) {
+			String tempArea = "";
+			String area = list.get(i).get("AREA").toString();
+
+			hpList.add(list.get(i).get("HPID").toString());
+
+			if (areaList.contains(area))
+				continue;
+
+			areaList.add(list.get(i).get("AREA").toString());
+
+			tempArea = area;
+		}
+
+		Map<String, Object> userBookmarkData = new HashMap<>();
+		Map<String, Object> userBookmarkMap = new HashMap<>();
+
+		for (int i = 0; i < areaList.size(); i++) {
+
+			userBookmarkMap.put(areaList.get(i), getEmrmType(areaList.get(i)));
 		}
 		
-		return result;
+		userBookmarkData.put("hpid", hpList);
+		userBookmarkData.put("hospital", userBookmarkMap);
+
+		return userBookmarkData;
 	}
 
-	public String getEmrm2(String addr) throws IOException {
+	public String getEmrmType(String addr) throws IOException {
 		StringBuilder urlBuilder = new StringBuilder(
 				"http://apis.data.go.kr/B552657/ErmctInfoInqireService/getEmrrmRltmUsefulSckbdInfoInqire"); /* URL */
 		urlBuilder.append("?" + URLEncoder.encode("serviceKey", "UTF-8") + "=" + ApiUrl.API_KEY); /* Service Key */
@@ -400,9 +421,62 @@ public class OpenApiController {
 		}
 		rd.close();
 		conn.disconnect();
-		System.out.println(sb.toString());
-		org.json.JSONObject json = XML.toJSONObject(sb.toString());
-		String jsonStr = json.toString(4);
-		return jsonStr;
+//		System.out.println(sb.toString());
+		JSONObject json = XML.toJSONObject(sb.toString());
+//		String jsonStr = json.toString(4);
+
+		JSONObject response = (JSONObject) json.get("response");
+		JSONObject body = (JSONObject) response.get("body");
+		JSONObject items = (JSONObject) body.get("items");
+		JSONArray item = (JSONArray) items.get("item");
+
+		Map<String, Object> result = hospitalService.showHospitalByAreaList(addr);
+		
+		org.json.simple.JSONObject jo = new org.json.simple.JSONObject();
+		String data = jo.toJSONString(result);
+		
+		JSONParser jsonParser1 = new JSONParser();
+		org.json.simple.JSONObject jsonObject1;
+
+		// ArrayList validChkHpid = new ArrayList();
+
+		ArrayList validChkHpid = new ArrayList<>();
+		
+		try {
+			jsonObject1 = (org.json.simple.JSONObject) jsonParser1.parse(data);
+			org.json.simple.JSONArray saveHospitalArr = (org.json.simple.JSONArray) jsonObject1.get("data");
+
+			for (int j = 0; j < saveHospitalArr.size(); j++) { // save data
+				org.json.simple.JSONObject saveObjectArray = (org.json.simple.JSONObject) saveHospitalArr.get(j);
+				// System.out.println("저장된 데이터 : " +saveObjectArray.get("HPID"));
+
+				for (int i = 0; i < item.length(); i++) { // open api
+					JSONObject objectInArray = (JSONObject) item.get(i);
+					// System.out.println("open API items : " + objectInArray.get("hpid"));
+
+					if (saveObjectArray.get("HPID").equals(objectInArray.get("hpid"))) {
+
+						boolean bol = userService.findByBookMark(saveObjectArray.get("HPID").toString());
+
+						// validChkHpid.add(objectInArray);
+						/* 해당 open api 는 위경도 값이 없어서 저장된 위경도 값 꺼내서 추가 */
+						objectInArray.put("LATITUDE", saveObjectArray.get("LATITUDE"));
+						objectInArray.put("LONGITUDE", saveObjectArray.get("LONGITUDE"));
+						objectInArray.put("h_data", saveObjectArray);
+
+						objectInArray.put("bookmark", bol);
+
+						validChkHpid.add(objectInArray.toString());
+					}
+				}
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println("[ getEmrrmRltmUsefulSckbdInfoInqire error ] : " + e.getMessage());
+		}
+		
+		
+		return validChkHpid.toString();
+
 	}
 }
