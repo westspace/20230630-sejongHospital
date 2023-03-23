@@ -81,10 +81,11 @@ public class OpenApiController {
 		return Maps.json("", "", json.toString());
 	}
 
-	// 세종 충남 대전
+	// 세종 충남 대전 충북
 	@RequestMapping(value = "/api/getEmrrmRltmUsefulSckbdInfoInqire", method = { RequestMethod.GET,
 			RequestMethod.POST })
-	public Map<String, Object> getEmrrmRltmUsefulSckbdInfoInqire(@RequestParam String area) throws IOException {
+	public Map<String, Object> getEmrrmRltmUsefulSckbdInfoInqire(@RequestParam String area,
+			@AuthenticationPrincipal CustomUserDetails authUser) throws IOException {
 
 		System.out.println("hAddr : " + area);
 		StringBuilder urlBuilder = new StringBuilder(ApiUrl.SERVICE_URL + "/getEmrrmRltmUsefulSckbdInfoInqire");
@@ -154,7 +155,7 @@ public class OpenApiController {
 
 					if (saveObjectArray.get("HPID").equals(objectInArray.get("hpid"))) {
 
-						boolean bol = userService.findByBookMark(saveObjectArray.get("HPID").toString());
+						boolean bol = userService.findByBookMark(saveObjectArray.get("HPID").toString(), authUser);
 
 						// validChkHpid.add(objectInArray);
 						/* 해당 open api 는 위경도 값이 없어서 저장된 위경도 값 꺼내서 추가 */
@@ -173,7 +174,7 @@ public class OpenApiController {
 			System.out.println("[ getEmrrmRltmUsefulSckbdInfoInqire error ] : " + e.getMessage());
 		}
 
-		// System.out.println("validChkHpid : " + validChkHpid);
+		System.out.println("validChkHpid : " + validChkHpid);
 
 		return Maps.json("S-1", "ok", validChkHpid);
 	}
@@ -357,7 +358,10 @@ public class OpenApiController {
 	public Map<String, Object> getUserBookMarkData(@AuthenticationPrincipal CustomUserDetails authUser)
 			throws IOException {
 
-		List<Map<String, Object>> list = userService.getUserBookMarkData();
+		if (authUser == null)
+			return Maps.json("F-1", "로그인 후 이용해주세요");
+
+		List<Map<String, Object>> list = userService.getUserBookMarkData(authUser);
 		System.out.println("list : " + list);
 
 		List<String> areaList = new ArrayList<>();
@@ -382,16 +386,16 @@ public class OpenApiController {
 
 		for (int i = 0; i < areaList.size(); i++) {
 
-			userBookmarkMap.put(areaList.get(i), getEmrmType(areaList.get(i)));
+			userBookmarkMap.put(areaList.get(i), getEmrmType(areaList.get(i), authUser));
 		}
-		
+
 		userBookmarkData.put("hpid", hpList);
 		userBookmarkData.put("hospital", userBookmarkMap);
 
 		return userBookmarkData;
 	}
 
-	public String getEmrmType(String addr) throws IOException {
+	public String getEmrmType(String addr, CustomUserDetails authUser) throws IOException {
 		StringBuilder urlBuilder = new StringBuilder(
 				"http://apis.data.go.kr/B552657/ErmctInfoInqireService/getEmrrmRltmUsefulSckbdInfoInqire"); /* URL */
 		urlBuilder.append("?" + URLEncoder.encode("serviceKey", "UTF-8") + "=" + ApiUrl.API_KEY); /* Service Key */
@@ -431,17 +435,17 @@ public class OpenApiController {
 		JSONArray item = (JSONArray) items.get("item");
 
 		Map<String, Object> result = hospitalService.showHospitalByAreaList(addr);
-		
+
 		org.json.simple.JSONObject jo = new org.json.simple.JSONObject();
 		String data = jo.toJSONString(result);
-		
+
 		JSONParser jsonParser1 = new JSONParser();
 		org.json.simple.JSONObject jsonObject1;
 
 		// ArrayList validChkHpid = new ArrayList();
 
 		ArrayList validChkHpid = new ArrayList<>();
-		
+
 		try {
 			jsonObject1 = (org.json.simple.JSONObject) jsonParser1.parse(data);
 			org.json.simple.JSONArray saveHospitalArr = (org.json.simple.JSONArray) jsonObject1.get("data");
@@ -456,7 +460,7 @@ public class OpenApiController {
 
 					if (saveObjectArray.get("HPID").equals(objectInArray.get("hpid"))) {
 
-						boolean bol = userService.findByBookMark(saveObjectArray.get("HPID").toString());
+						boolean bol = userService.findByBookMark(saveObjectArray.get("HPID").toString(), authUser);
 
 						// validChkHpid.add(objectInArray);
 						/* 해당 open api 는 위경도 값이 없어서 저장된 위경도 값 꺼내서 추가 */
@@ -474,9 +478,92 @@ public class OpenApiController {
 			// TODO: handle exception
 			System.out.println("[ getEmrrmRltmUsefulSckbdInfoInqire error ] : " + e.getMessage());
 		}
-		
-		
-		return validChkHpid.toString();
 
+		return validChkHpid.toString();
+	}
+
+	// 전체 병원 목록 (세종특별자치시, 충청남도, 충청북도, 대전광역시)
+	@RequestMapping(value = "/api/getHospitalAllList", method = { RequestMethod.GET, RequestMethod.POST })
+	public Map<String, Object> getHospitalAllList(@AuthenticationPrincipal CustomUserDetails authUser)
+			throws IOException {
+
+		Map<String, Object> validChkHpid = new HashMap<>();
+
+		String area[] = { "세종특별자치시", "충청남도", "충청북도", "대전광역시" };
+
+		for (int t = 0; t < area.length; t++) {
+			StringBuilder urlBuilder = new StringBuilder(ApiUrl.SERVICE_URL + "/getEmrrmRltmUsefulSckbdInfoInqire");
+
+			urlBuilder.append("?" + URLEncoder.encode("serviceKey", "UTF-8") + "=" + ApiUrl.API_KEY); /* Service Key */
+			urlBuilder.append(
+					"&" + URLEncoder.encode("STAGE1", "UTF-8") + "=" + URLEncoder.encode(area[t], "UTF-8")); /* 주소(시도) */
+			urlBuilder.append(
+					"&" + URLEncoder.encode("STAGE2", "UTF-8") + "=" + URLEncoder.encode("", "UTF-8")); /* 주소(시군구) */
+			urlBuilder.append(
+					"&" + URLEncoder.encode("pageNo", "UTF-8") + "=" + URLEncoder.encode("1", "UTF-8")); /* 페이지 번호 */
+			urlBuilder.append("&" + URLEncoder.encode("numOfRows", "UTF-8") + "="
+					+ URLEncoder.encode("100", "UTF-8")); /* 목록 건수 */
+
+			URL url = new URL(urlBuilder.toString());
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod("GET");
+			conn.setRequestProperty("Content-type", "application/json");
+			BufferedReader rd;
+			if (conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
+				rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			} else {
+				rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+			}
+			StringBuilder sb = new StringBuilder();
+			String line;
+			while ((line = rd.readLine()) != null) {
+				sb.append(line);
+			}
+			rd.close();
+			conn.disconnect();
+
+			JSONObject json = XML.toJSONObject(sb.toString());
+			JSONObject response = (JSONObject) json.get("response");
+			JSONObject body = (JSONObject) response.get("body");
+			JSONObject items = (JSONObject) body.get("items");
+			JSONArray item = (JSONArray) items.get("item");
+
+			Map<String, Object> result = hospitalService.showHospitalByAreaList(area[t]);
+
+			org.json.simple.JSONObject jo = new org.json.simple.JSONObject();
+			String data = jo.toJSONString(result);
+
+			JSONParser jsonParser1 = new JSONParser();
+			org.json.simple.JSONObject jsonObject1;
+
+			try {
+				jsonObject1 = (org.json.simple.JSONObject) jsonParser1.parse(data);
+				org.json.simple.JSONArray saveHospitalArr = (org.json.simple.JSONArray) jsonObject1.get("data");
+
+				for (int j = 0; j < saveHospitalArr.size(); j++) { // save data
+					org.json.simple.JSONObject saveObjectArray = (org.json.simple.JSONObject) saveHospitalArr.get(j);
+
+					for (int i = 0; i < item.length(); i++) { // open api
+						JSONObject objectInArray = (JSONObject) item.get(i);
+
+						if (saveObjectArray.get("HPID").equals(objectInArray.get("hpid"))) {
+							boolean bol = userService.findByBookMark(saveObjectArray.get("HPID").toString(), authUser);
+							objectInArray.put("LATITUDE", saveObjectArray.get("LATITUDE"));
+							objectInArray.put("LONGITUDE", saveObjectArray.get("LONGITUDE"));
+							objectInArray.put("h_data", saveObjectArray);
+							objectInArray.put("bookmark", bol);
+
+							validChkHpid.put(objectInArray.get("hpid").toString(), objectInArray.toString());
+						}
+					}
+				}
+			} catch (Exception e) {
+				System.out.println("[ getEmrrmRltmUsefulSckbdInfoInqire error ] : " + e.getMessage());
+			}
+
+			System.out.println("validChkHpid : " + validChkHpid);
+		}
+
+		return Maps.json("S-1", "ok", validChkHpid);
 	}
 }

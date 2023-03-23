@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.sh.common.Maps;
 import com.sh.dao.UserDao;
+import com.sh.dto.CustomUserDetails;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -118,11 +119,11 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public boolean findByBookMark(String object) {
+	public boolean findByBookMark(String object, CustomUserDetails authUser) {
 		Map userData = new HashMap();
 
 		userData.put("hpid", object);
-		userData.put("userCode", 1);
+		userData.put("userCode", authUser.getUserCode());
 
 		Map<String, Object> result = userDao.findByBookmarkForUser(userData);
 
@@ -134,10 +135,10 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<Map<String, Object>> getUserBookMarkData() {
+	public List<Map<String, Object>> getUserBookMarkData(CustomUserDetails authUser) {
 	
 		Map<String, Object> map = new HashMap();
-		map.put("userCode", 1);
+		map.put("userCode", authUser.getUserCode());
 		
 		List<Map<String, Object>> result = userDao.getUserBookMarkData(map);
 		
