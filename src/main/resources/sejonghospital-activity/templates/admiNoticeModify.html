@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<section th:ref="contents" class="">
+		<header th:replace="fragments/adminHeader :: fragmentAdminHeader"></header>
+		
+		<script th:inline="javascript">
+			/*<![CDATA[*/
+			var boardData = /*[[${boardData}]]*/
+			/*]]>*/
+			console.log(boardData)
+
+			function replaceBrTag(str) {
+				if (str == undefined || str == null) {
+						return "";
+				}
+				str = str.replace(/\r\n/ig, '<br>');
+				str = str.replace(/\\n/ig, '<br>');
+				str = str.replace(/\n/ig, '<br>');
+				return str;
+			}
+
+			let item = boardData.data;
+
+			const getBoardData = () => {
+				$('.admin-notice-write-input').val(item.TITLE);
+				$('#noticeBody').val(replaceBrTag(item.BODY));
+				document.querySelector('#article_code').value = item.ARTICLE_CODE;
+
+				item.LABEL == true && $('#emChk').trigger('click');
+
+				if(item.IMAGE_PATH) {
+					console.log(item.IMAGE_ORIGIN);
+					let html = '';
+					html += `
+						<img src="/articleImage/${item.IMAGE_PATH.split('articleImage/')[1]}" alt="">
+					`;
+					$('.board-image').append(html);
+				}
+			}
+
+			window.onload=function() {
+				getBoardData();
+			}
+
+			const moveBoardModify = async () => {
+				console.log(location.href.split('noticeDetail/')[1]);
+				location.href=`/admin/noticeModify/${location.href.split('noticeDetail/')[1]}`;
+			}
+
+		</script>
+
+		<span class="admin-notice-write-box">
+			<span>
+				<p style="display: flex; align-items: center; ">
+					<input type="text" id="noticeTitle" placeholder="제목을 입력해주세요." class="admin-notice-write-input">
+					<input type="hidden" id="article_code">
+					<span class="emChk-wrap">
+						<input type="checkbox" id="emChk" class="emChk">	
+						<label for="emChk">공지표시</label>
+					</span>
+				</p>
+
+				<textarea name="" id="noticeBody" cols="30" rows="10" placeholder="내용을 입력해주세요."></textarea>
+
+				
+				<div class="board-image"></div>
+				<input type="file" id="file">
+
+				<button class="admin-notice-write-btn" onclick="adminNoticeModify();">공지 수정</button>
+			</span>
+
+		</span>
+	</section>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="layouts/layout">
+	
+	<section layout:fragment="contents" class="home-container" style="min-height: 100vh;">
+		<script src="/js/home.js"></script>
+		<script>
+			window.onload=function() {
+				getNoticeBoard();
+			}
+		</script>
+
+		<span class="home-top">
+			<span class="home-top-nav">
+				<div></div>
+				<div class="home-top-nav-txt">내손안에응급실</div>
+				<div style="text-align: right;">
+					<img src="/images/menu.png" class="home-top-menu"  onclick="navOpen();">
+				</div>
+			</span>
+
+			<span class="home-top-info">
+				<span class="home-top-user-wrap">
+					<div class="home-top-user-name" th:text="|${username}님|"></div>
+					<div>안녕하세요.</div>
+				</span>
+
+				<div style="color: #fff; font-size: 25px;" th:text="|${agency}|"></div>
+
+				<button class="emergency-room-status-btn" onclick="location='/hospital';">
+					<div>응급실 현황 확인하기</div>
+					<img src="/images/arrow_forward.png">
+				</button>
+			</span>
+		</span>
+		
+		<span class="home-notice">
+			<h3>공지사항</h3>
+			<div id="Accordion_wrap"></div>
+			<button class="notice-more-btn" onclick="location.href='/notice';">전체보기</button>
+		</span>
+
+	</section>
+</html>

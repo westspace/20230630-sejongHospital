@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorator="~{layouts/layout}">
+	
+	<section layout:fragment="contents" class="admin-container">
+		<header th:replace="fragments/adminHeader :: fragmentAdminHeader"></header>
+		<div th:if="${rolename == '관리자'}">
+			<script>
+				const mainHospitalList = async () => {
+					try {
+						let f = await fetch('/api/hospitalList');
+						let j = await f.json();
+						console.log(j);
+
+						let html = '';
+
+						html += `
+							<span class='h-detail-wrap'>
+								<div>등록된 총 병원</div>
+								<div>${j.data.length}</div>
+							</span>
+						`;
+
+						$('.hospital-state').append(html);
+
+		
+					} catch (error) {
+						console.log(error);
+					}
+
+
+					try {
+						
+						let f = await fetch('/api/userList');
+						let j = await f.json();
+
+						console.log(j);
+
+						let html = '';
+
+						html += `
+							<span class='h-detail-wrap'>
+								<div>등록된 총 사용자</div>
+								<div>${j.data.length}</div>
+							</span>
+						`;
+
+						$('.user-state').append(html);
+
+					} catch(e) {
+
+					}
+				}
+				mainHospitalList();
+		</script>
+		</div>
+		<span style="padding: 10px;">
+			<div class="hospital-state"></div>
+			<div class="user-state"></div>
+			<span style="display: block; height: 400px;">
+
+			</span>
+			<table class="table">
+				<thead class="thead-dark">
+					<tr>
+						<!-- <th scope="col">번호</th> -->
+						<th scope="col">제목</th>
+						<th scope="col">등록 날짜</th>
+						<th scope="col">등록 유저</th>
+						<th scope="col">권한레벨</th>
+						<th scope="col">공지강조</th>
+					</tr>
+				</thead>
+				<tbody id="dyn_tbody">
+				</tbody>
+			</table>
+			<nav aria-label="Page navigation example">
+				<ul id="dyn_ul" class="pagination" style="justify-content: center;">
+				</ul>
+			</nav>
+		</span>
+	</section>
+</html>

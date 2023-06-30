@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<section th:ref="contents">
+		<header th:replace="fragments/adminHeader :: fragmentAdminHeader"></header>
+		
+		<span class="admin-notice-write-box">
+			<span>
+				<p style="display: flex; align-items: center; ">
+					<input type="text" id="noticeTitle" placeholder="제목을 입력해주세요." class="admin-notice-write-input">
+					
+					<span class="emChk-wrap">
+						<input type="checkbox" id="emChk" class="emChk">	
+						<label for="emChk">공지표시</label>
+					</span>
+				</p>
+
+				<textarea name="" id="noticeBody" cols="30" rows="10" placeholder="내용을 입력해주세요."></textarea>
+
+				<input type="file" id="file">
+
+				<button class="admin-notice-write-btn" onclick="adminNoticeWrite();">공지 등록</button>
+			</span>
+
+		</span>
+	</section>
+</html>

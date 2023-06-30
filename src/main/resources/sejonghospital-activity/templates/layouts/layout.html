@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+	<th:block th:replace="/fragments/head"></th:block>
+</head>
+<body style="position: relative;">
+	<header th:replace="fragments/header :: fragmentHeader"></header>
+	<section layout:fragment="contents"></section>
+	<footer th:replace="fragments/footer :: fragmentFooter"></footer>
+
+	<nav class="background-layer">
+		<nav class="side-nav">
+			<span class="side-nav-top-info">
+				<img src="/images/close.png" class="side-nav-close" onclick="navClose();">
+
+				<span class="side-nav-top-user-info" onclick="location.href='/';">
+					<div class="home-top-user-name" th:text="|${username}|"></div>
+					<div style="font-size: 20px;" th:text="|${agency}|"></div>
+				</span>
+			</span>
+
+			<span>
+				<span class="side-nav-item" onclick="location.href='/';">
+					<div>홈</div>
+					<img src="/images/arrow_forward_ios.png" alt="">
+				</span>
+
+				<span class="side-nav-item" onclick="location.href='/notice';">
+					<div>공지사항</div>
+					<img src="/images/arrow_forward_ios.png" alt="">
+				</span>
+
+				<span class="side-nav-item" onclick="location.href='/hospital';">
+					<div>병원목록</div>
+					<img src="/images/arrow_forward_ios.png" alt="">
+				</span>
+				
+			</span>
+		</nav>
+	</nav>
+</body>
+</html>

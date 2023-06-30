@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="layouts/layout">
+	<section layout:fragment="contents" class="login-container">
+		<script src="/js/login.js"></script>
+		
+		<form th:action="@{/doLogin}" method="post" class="login-form" onsubmit="return validChk(this);" style="min-width: 350px;">
+			
+			<div class="image-wrap">
+				<img src="/images/main_image.png">
+			</div>
+
+			<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
+
+			<span style="display: flex; flex-direction: column;">
+				<input type="text" name="username" id="username" autofocus="autofocus" 
+				class="login-input" placeholder="아이디" autocomplete="off" value="user1">
+
+				<input type="password" name="password" id="password" class="login-input"  value="user1"
+				placeholder="패스워드" autocomplete="off">
+			</span>
+
+			<br/>
+
+			<span style="display: flex; align-items: center;">
+				<input type="checkbox" id="auto-login" name="remember-me" value="True">
+				<label for="auto-login" class="auto-btn-txt">자동로그인</label>
+			</span>
+
+			<br/>
+			<input type="submit" value="로그인" class="login-btn">
+			
+			<div th:if="${error != null}" style="display: block; width: 350px; margin:6px 0px">
+				<div id="valid" th:text="${exception}" style="color: red; font-size: 12px;"></div>
+			</div>
+		</form>
+	</section>
+</html>

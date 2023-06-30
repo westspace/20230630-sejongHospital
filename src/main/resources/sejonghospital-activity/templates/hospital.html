@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorator="~{layouts/layout}">
+	
+	<section layout:fragment="contents" class="hospital-container">
+		<style>
+			.hospital-name {
+				cursor: pointer;
+			}
+
+			.fa {
+				cursor: pointer;
+			}
+		</style>
+		<header th:replace="fragments/topNav :: fragmentTopNav"></header>
+				
+		<script>
+
+			function percentPrase(num) {
+				//console.log(num * 70 / 100);
+				let result7 = (num * 70 / 100).toFixed(0);
+				console.log(result7);
+			}
+
+			function percent(par,total) {
+				return (par / total) * 100
+			}
+			
+			document.getElementById('topNavTitle').innerHTML='병원목록';
+
+			function distance(myLat,myLng,shopLat,shopLng){
+				function deg2rad(deg){
+					return deg * (Math.PI/180)
+					}
+					const R = 6371;
+					const dLat = deg2rad(shopLat-myLat);
+					const dLon = deg2rad(shopLng-myLng);
+			
+					const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(deg2rad(myLat)) * Math.cos(deg2rad(shopLat)) * Math.sin(dLon/2) * Math.sin(dLon/2);
+					const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+					const d = R * c;
+					return d;
+			}
+
+			let latitude;
+			let longitude;
+			let data;
+
+			window.onload=function() {
+				navigator.geolocation.getCurrentPosition( function(pos) {
+					console.log(pos);
+					latitude = pos.coords.latitude;
+					longitude = pos.coords.longitude;
+				}, function(err) { console.log(err); });
+
+				/*
+				if('geolocation' in navigator) {
+					navigator.geolocation.getCurrentPosition( function(pos) {
+						latitude = pos.coords.latitude;
+						longitude = pos.coords.longitude;
+					});
+				} else {
+					console.log('불가능');
+				}*/
+			}
+
+			const setBookmarkFilter = (item) => {
+				let html= '';
+				if(item.bookmark) {
+					html = `
+					<i class="fa fa-star" aria-hidden="true" style='color:#FF7700;'></i>
+					`;
+				} else {
+					html = `
+					<i class="fa fa-star-o" aria-hidden="true"></i>
+					`;
+				}
+
+				return html;
+			}
+
+			const tempStyleParse = (num) => {
+
+				let n = percent(num, 5);
+
+				console.log('무어ㅑ ? : ', n);
+				let style = ''
+
+				if(n > 70) {
+					style = 'background-color:#FCEEEE; color: #DD272A; font-weight: bold;'
+				} else if (n < 70 && n > 50) {
+					style = 'background-color:#FFF4EB; color: #FF7700; font-weight: bold;'
+				} else if (n < 50) {
+					style = 'background-color:#EFF9F1; color: #3CB44A; font-weight: bold;'
+				}
+
+
+				return style;
+			}
+
+			const tempRoomParse = (item) => {
+				let result;
+				if(item.hpid == 'A1800417') { // NK 는 소아병상 X 
+					result = "<div style='display:none;'></div>";
+
+				} else if(item.hpid == 'A1800441'){ // 세종 충남대학교 병원
+
+					result = `<div style="${tempStyleParse(item.hv28)}">응급실소아 ${item.hv28}</div>`;
+
+				} else {
+
+					result = `<div style='background-color: #FCEEEE;color: #DD272A;font-weight: bold;'>응급실소아 ${item.hv28}</div>`
+				}
+
+				return result;
+			}
+
+			/*
+			.h-detail-info-wrap div:nth-child(2) {
+				background-color: #FCEEEE;
+				color: #DD272A;
+				font-weight: bold;
+			}
+			*/
+
+			const bookMarkList = async () => {
+				console.log('bookMarkList');
+				
+				$('.loading-wrap').css({
+					'display':'flex'
+				});
+
+				try {
+					
+					let f = await fetch('/api/getUserBookMarkData');
+					let j = await f.json();
+
+					let data = [];
+
+					for (let i = 0; i < Object.keys(j.hospital).length; i++) {
+						let item = JSON.parse(j.hospital[Object.keys(j.hospital)[i]]);
+						item.map(item=>data.push(item));
+					}
+					
+					let temp = [];
+					
+					for (let i = 0; i < data.length; i++) {
+						for (let a = 0; a < j.hpid.length; a++) {
+							if(data[i].hpid == j.hpid[a]) {
+								temp.push(data[i]);
+							}
+						}
+					}
+
+
+					console.log(temp);
+
+					localStorage.setItem('h', JSON.stringify(temp));
+			
+					let html = '';
+					temp.map((item, idx)=>{
+
+						console.log(item);
+						html += `
+						<span class="hospital-item-container">
+							<span class="hospital-item">
+								<span onclick="location.href='/hospitalDetail/${item.h_data.HPID}'; ">
+									<span style="display: flex; align-items: center;">
+										<div class="h-area ${areaByStyle(areaChk(item.h_data.AREA))}">${item.h_data.AREA}</div>
+										<div class="ha">&nbsp;&nbsp;[센터]&nbsp;</div>
+										<div class="ha">&nbsp;[감염]&nbsp;</div>
+									</span>
+									<h1 class="hospital-name">${item.h_data.DUTYNAME}</h1>
+								</span>	
+								
+								<span style='display:flex; align-items:center;'>
+									<span class="hospital-phone-wrap" onclick='prompt("${item.h_data.DUTYNAME} 전화번호 입니다.", ${JSON.stringify(item.h_data.DUTYTEL)});'>
+										<img src="/images/local_phone.png" >
+										<div></div>
+									</span>
+									
+									<span class="book-mark-wrap book-mark-wrap-${idx}" style='margin-left:10px;' onclick='bookmark(${JSON.stringify(item)}, ${idx});'>
+										${setBookmarkFilter(item)}
+									</span>
+								</span>
+							</span>
+							
+							<span style="display: flex;" class="h-detail-info-wrap">
+								<div>응급실일반 ${item.hvec}</div>
+								${tempRoomParse(item)}
+								<div>읍압격리 ${item.hv13}</div>
+								<div>일반격리 ${item.hv14}</div>
+							</span>
+						</span>
+						`;
+					});
+
+					$('.hospital-list').empty();
+					$('.hospital-list').append(html);
+
+					
+					$('.loading-wrap').css({
+						'display':'none'
+					});
+					
+				} catch (error) {
+					console.log(error);
+
+					
+					$('.loading-wrap').css({
+						'display':'none'
+					});
+				}
+				
+
+			}
+
+			const showHospitalByAreaList = async (e) => {
+				$('.hospital-list').empty();
+				//console.log('e : ', e.selectedIndex);
+				localStorage.setItem('selectedIndex', e.selectedIndex);
+				if(e.value == '') return false;
+				if(e.value == '즐겨찾기') return bookMarkList();
+				if(e.value == '전체') return showHospitalByAreaAllList();
+				//console.log(e.value);
+				console.log('my latitude : ', latitude);
+				console.log('my longitude : ', longitude);
+
+				if(!latitude || !longitude) {
+					$('.gps-status-text').css({
+						'display':'flex'
+					});
+				}
+				$('.loading-wrap').css({
+					'display':'flex'
+				});
+				try {
+					let f = await fetch(`/api/getEmrrmRltmUsefulSckbdInfoInqire?area=${e.value}`);
+					let j = await f.json();
+					// console.log(j);
+					let html = '';
+					let items = [];
+
+					console.log('이건 : ', j);
+
+					for (hospital in j.data)  {
+						let item = JSON.parse(j.data[hospital]);
+						item.distance = distance(latitude, longitude, item.LATITUDE, item.LONGITUDE);
+						items.push(item);
+					}
+
+					function neighboring(){
+						const neighboringShop = items.sort(function(a,b){
+							let c= a.distance;
+							let d= b.distance;
+							return c-d;
+						});
+						return neighboringShop;
+					}
+
+					data = neighboring();
+					localStorage.setItem('h', JSON.stringify(data));
+				
+					console.log('--------------------------------- : ', data);
+
+					data.map((item, idx)=>{
+						//console.log(item);
+                        // let phone = JSON.stringify();
+						html += `
+							<span class="hospital-item-container">
+								<span class="hospital-item">
+									<span onclick="location.href='/hospitalDetail/${item.hpid}'; ">
+										<span style="display: flex; align-items: center;">
+											<div class="h-area ${areaByStyle(areaChk(e.value))}">${areaChk(e.value)}</div>
+											<div class="ha">&nbsp;&nbsp;[센터]&nbsp;</div>
+											<div class="ha">&nbsp;[감염]&nbsp;</div>
+										</span>
+										<h1 class="hospital-name">${item.dutyName}</h1>
+										<div class="hospital-notice">${item.h_data.M_MEMO ? '[공지] | ' + item.h_data.M_MEMO : ''}</div>
+									</span>	
+
+									
+									<span style='display:flex; align-items:center;'>
+
+										<span class="hospital-phone-wrap" onclick='prompt("${item.dutyName} 전화번호 입니다.", ${JSON.stringify(item.dutyTel3)});'>
+											<img src="/images/local_phone.png" >
+											<div></div>
+										</span>
+										
+										<span class="book-mark-wrap book-mark-wrap-${idx}" style='margin-left:10px;' onclick='bookmark(${JSON.stringify(item)}, ${idx});'>
+											${setBookmarkFilter(item)}
+										</span>
+
+									</span>
+								</span>
+
+								<span style="display: flex;" class="h-detail-info-wrap">
+									<div>응급실일반 ${item.hvec}</div>
+									${tempRoomParse(item)}
+									<div>읍압격리 ${item.hv13}</div>
+									<div>일반격리 ${item.hv14}</div>
+								</span>
+
+
+							</span>
+						`;
+					});
+
+					$('.hospital-list').empty();
+					$('.hospital-list').append(html);
+
+					chkInitColor();
+					$('#distance-count').css({'color':'#1582FF'});
+
+					$('.loading-wrap').css({
+						'display':'none'
+					});
+
+				} catch (error) {
+					console.log(error);
+
+					$('.loading-wrap').css({
+						'display':'none'
+					});
+					alert('데이터를 불러오는 도중 에러가 발생되었습니다.\n관리자에게 문의해주세요.');
+				}
+			}
+
+			const showHospitalByAreaAllList = async () => {
+				//console.log(e.value);
+				console.log('my latitude : ', latitude);
+				console.log('my longitude : ', longitude);
+
+				if(!latitude || !longitude) {
+					$('.gps-status-text').css({
+						'display':'flex'
+					});
+				}
+				$('.loading-wrap').css({
+					'display':'flex'
+				});
+				try {
+					let f = await fetch(`/api/getHospitalAllList`);
+					let j = await f.json();
+					// console.log(j);
+					let html = '';
+					let items = [];
+
+					console.log('이건 : ', j);
+
+					for (hospital in j.data)  {
+						let item = JSON.parse(j.data[hospital]);
+						item.distance = distance(latitude, longitude, item.LATITUDE, item.LONGITUDE);
+						items.push(item);
+					}
+
+					function neighboring(){
+						const neighboringShop = items.sort(function(a,b){
+							let c= a.distance;
+							let d= b.distance;
+							return c-d;
+						});
+						return neighboringShop;
+					}
+
+					data = neighboring();
+					localStorage.setItem('h', JSON.stringify(data));
+				
+					console.log('--------------------------------- : ', data);
+
+					data.map((item, idx)=>{
+						//console.log(item);
+                        // let phone = JSON.stringify();
+						html += `
+							<span class="hospital-item-container">
+								<span class="hospital-item">
+									<span onclick="location.href='/hospitalDetail/${item.hpid}'; ">
+										<span style="display: flex; align-items: center;">
+											<div class="h-area ${areaByStyle(areaChk(item.h_data.AREA))}">${areaChk(item.h_data.AREA)}</div>
+											<div class="ha">&nbsp;&nbsp;[센터]&nbsp;</div>
+											<div class="ha">&nbsp;[감염]&nbsp;</div>
+										</span>
+										<h1 class="hospital-name">${item.dutyName}</h1>
+										<div class="hospital-notice">${item.h_data.M_MEMO ? '[공지] | ' + item.h_data.M_MEMO : ''}</div>
+									</span>	
+
+									
+									<span style='display:flex; align-items:center;'>
+
+										<span class="hospital-phone-wrap" onclick='prompt("${item.dutyName} 전화번호 입니다.", ${JSON.stringify(item.dutyTel3)});'>
+											<img src="/images/local_phone.png" >
+											<div></div>
+										</span>
+										
+										<span class="book-mark-wrap book-mark-wrap-${idx}" style='margin-left:10px;' onclick='bookmark(${JSON.stringify(item)}, ${idx});'>
+											${setBookmarkFilter(item)}
+										</span>
+
+									</span>
+								</span>
+
+								<span style="display: flex;" class="h-detail-info-wrap">
+									<div>응급실일반 ${item.hvec}</div>
+									${tempRoomParse(item)}
+									<div>읍압격리 ${item.hv13}</div>
+									<div>일반격리 ${item.hv14}</div>
+								</span>
+							</span>
+						`;
+					});
+
+					$('.hospital-list').empty();
+					$('.hospital-list').append(html);
+
+					chkInitColor();
+					$('#distance-count').css({'color':'#1582FF'});
+
+					$('.loading-wrap').css({
+						'display':'none'
+					});
+
+				} catch (error) {
+					console.log(error);
+
+					$('.loading-wrap').css({
+						'display':'none'
+					});
+					alert('데이터를 불러오는 도중 에러가 발생되었습니다.\n관리자에게 문의해주세요.');
+				}
+			}
+
+			const chkInitColor = () => {
+				$('#h-room-count').css({'color':'black'});
+				$('#distance-count').css({'color':'black'});
+			}
+				
+
+			const countFilter = (value) => {
+				//console.log($('.filter-btn').val());
+				//console.log(document.getElementsByClassName('filter-btn'));
+				//h-room-count
+				//distance-count
+				
+				// color: #1582FF;
+				if(data) {
+					chkInitColor();
+
+					let arr;
+					let html = '';
+					let temp = data;
+
+					if(value == '병상') {
+						$('#h-room-count').css({'color':'#1582FF'});
+
+						function neighboring(){
+							const neighboringShop = temp.sort(function(a,b){
+								let c= a.hvec;
+								let d= b.hvec;
+								return d-c;
+							});
+							return neighboringShop;
+						}
+						arr = neighboring();
+						//console.log(arr);
+
+					} else if (value == '거리') {
+						$('#distance-count').css({'color':'#1582FF'});
+
+						function neighboring(){
+							const neighboringShop = temp.sort(function(a,b){
+								let c= a.distance;
+								let d= b.distance;
+								return c-d;
+							});
+							return neighboringShop;
+						}
+
+						arr = neighboring();
+					}
+
+					arr.map((item, idx)=>{
+						//console.log(item);
+						html += `
+							<span class="hospital-item-container" >
+								<span class="hospital-item">
+									<span onclick="location.href='/hospitalDetail/${item.hpid}'; ">
+										<span style="display: flex; align-items: center;">
+											<div class="h-area ${areaByStyle(areaChk(item.h_data.AREA))}">${areaChk(item.h_data.AREA)}</div>
+											<div class="ha">&nbsp;&nbsp;[센터]&nbsp;</div>
+											<div class="ha">&nbsp;[감염]&nbsp;</div>
+										</span>
+										<h1 class="hospital-name">${item.dutyName}</h1>
+										<div class="hospital-notice">${item.h_data.M_MEMO ? '[공지] | ' + item.h_data.M_MEMO : ''}</div>
+									</span>	
+
+									<span style='display:flex; align-items:center;'>
+										<span class="hospital-phone-wrap" onclick='alert(${JSON.stringify(item.dutyTel3)});'>
+											<img src="/images/local_phone.png" >
+											<div></div>
+										</span>
+										
+										<span class="book-mark-wrap book-mark-wrap-${idx}" style='margin-left:10px;' onclick='bookmark(${JSON.stringify(item)}, ${idx});'>
+											${setBookmarkFilter(item)}
+										</span>
+									</span>
+								</span>
+
+								<span style="display: flex;" class="h-detail-info-wrap">
+									<div>응급실일반 ${item.hvec}</div>
+									${tempRoomParse(item)}
+									<div>읍압격리 ${item.hv13}</div>
+									<div>일반격리 ${item.hv14}</div>
+								</span>
+							</span>
+						`;
+					});
+					$('.hospital-list').empty();
+					$('.hospital-list').append(html);
+				} else {
+					alert('지역을 선택해주세요.');
+				}
+			} 
+
+			
+			async function bookmark(item, idx) {
+				// console.log(document.querySelector(`.book-mark-wrap-${idx}`));
+				// console.log(item.h_data.HPID);
+
+				//console.log('data : ', data);
+				
+			
+				try {
+					let f = await fetch(`/api/bookmark/${item.h_data.HPID}`);
+					let j = await f.json();
+
+					//console.log(j);
+
+					document.querySelector(`.book-mark-wrap-${idx}`).childNodes.item(1).remove();
+					let i = data.find((fItem)=>fItem.hpid == item.h_data.HPID);
+					if(j.code == 'S-1') {
+						document.querySelector(`.book-mark-wrap-${idx}`).outerHTML = `
+							<span class="book-mark-wrap-${idx}" style='margin-left:10px;' onclick='bookmark(${JSON.stringify(item)}, ${idx});'>
+								
+								<i class="fa fa-star " aria-hidden="true" style='color:#FF7700;'></i>
+					
+							</span>
+						`;
+						i.bookmark = true;
+					} else if(j.code == 'S-2') {
+						document.querySelector(`.book-mark-wrap-${idx}`).outerHTML = `
+							<span class="book-mark-wrap-${idx}" style='margin-left:10px;' onclick='bookmark(${JSON.stringify(item)}, ${idx});'>
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+							</span>
+						`;
+
+						i.bookmark = false;
+					}
+
+				} catch (error) {
+					console.log(error);					
+				}
+			}
+
+		</script>
+
+		<span class="hospital-filter-wrap">
+			<span class="filter-items">
+
+				<span class="filter-click" onclick="countFilter('병상');">
+					<div>
+						<img src="/images/deactiv.png">
+					</div>
+					<div class="filter-btn" id="h-room-count">병상 수</div>
+				</span>
+
+				<span class="filter-click" onclick="countFilter('거리');">
+					<div>
+						<img src="/images/deactiv.png">
+					</div>
+
+					<span class="filter-btn-wrap">
+						<div class="filter-btn" style="color: #1582FF;" id="distance-count">가까운 순</div>
+
+						<!-- <div class="gps-status-text" onclick="
+						navigator.geolocation.getCurrentPosition( function(pos) {
+							latitude = pos.coords.latitude;
+							longitude = pos.coords.longitude;
+							location.reload();
+						});">GPS OFF</div> -->
+					</span>
+				</span>
+				
+			</span>
+
+			<select class="filter-select" id="filter-select" onchange="showHospitalByAreaList(this);">
+				<option value="">지역선택</option>
+				<option value="세종특별자치시">세종</option>
+				<option value="충청남도">충남</option>
+				<option value="충청북도">충북</option>
+				<option value="대전광역시">대전</option>
+				<option value="전체">전체</option>
+				<option value="즐겨찾기">즐겨찾기</option>
+			</select>
+
+			<script>
+				window.onload=function() {
+					
+					console.log(localStorage.getItem('selectedIndex'));
+					if(!localStorage.getItem('selectedIndex')) {
+						let sel = document.getElementById('filter-select');
+						sel.options[1].selected = true;
+						sel.onchange();
+					} else {
+						let sel = document.getElementById('filter-select');
+						sel.options[localStorage.getItem('selectedIndex')].selected = true;
+						sel.onchange();
+					}
+						
+					// var sel = document.getElementById('filter-select');
+					// console.log(sel.options);
+					// var sel = document.getElementById('filter-select');
+					// sel.options[1].selected = true;
+					// sel.onchange();
+				}
+			</script>
+		</span>
+		
+		<span class="hospital-list">
+		</span>
+		<div class="loading-wrap">
+			<div class="loading-container">
+				<div class="loading"></div>
+				<div id="loading-text">로딩중입니다.</div>
+			</div>
+		</div>
+		<style>
+			.loading-wrap { 
+				position: absolute; left: 0px; bottom: 0px; right: 0px; top: 0px; display: flex; align-items: center; justify-content: center; 
+			
+				display: none;
+			}
+			#link {color: #E45635;display:block;font: 12px "Helvetica Neue", Helvetica, Arial, sans-serif;text-align:center; text-decoration: none;}
+			#link:hover {color: #CCCCCC}
+
+			#link, #link:hover {-webkit-transition: color 0.5s ease-out;-moz-transition: color 0.5s ease-out;-ms-transition: color 0.5s ease-out;-o-transition: color 0.5s ease-out;transition: color 0.5s ease-out;}
+
+/** BEGIN CSS **/
+		
+		@keyframes rotate-loading {
+			0%  {transform: rotate(0deg);-ms-transform: rotate(0deg); -webkit-transform: rotate(0deg); -o-transform: rotate(0deg); -moz-transform: rotate(0deg);}
+			100% {transform: rotate(360deg);-ms-transform: rotate(360deg); -webkit-transform: rotate(360deg); -o-transform: rotate(360deg); -moz-transform: rotate(360deg);}
+		}
+
+		@-moz-keyframes rotate-loading {
+			0%  {transform: rotate(0deg);-ms-transform: rotate(0deg); -webkit-transform: rotate(0deg); -o-transform: rotate(0deg); -moz-transform: rotate(0deg);}
+			100% {transform: rotate(360deg);-ms-transform: rotate(360deg); -webkit-transform: rotate(360deg); -o-transform: rotate(360deg); -moz-transform: rotate(360deg);}
+		}
+
+		@-webkit-keyframes rotate-loading {
+			0%  {transform: rotate(0deg);-ms-transform: rotate(0deg); -webkit-transform: rotate(0deg); -o-transform: rotate(0deg); -moz-transform: rotate(0deg);}
+			100% {transform: rotate(360deg);-ms-transform: rotate(360deg); -webkit-transform: rotate(360deg); -o-transform: rotate(360deg); -moz-transform: rotate(360deg);}
+		}
+
+		@-o-keyframes rotate-loading {
+			0%  {transform: rotate(0deg);-ms-transform: rotate(0deg); -webkit-transform: rotate(0deg); -o-transform: rotate(0deg); -moz-transform: rotate(0deg);}
+			100% {transform: rotate(360deg);-ms-transform: rotate(360deg); -webkit-transform: rotate(360deg); -o-transform: rotate(360deg); -moz-transform: rotate(360deg);}
+		}
+
+		@keyframes rotate-loading {
+			0%  {transform: rotate(0deg);-ms-transform: rotate(0deg); -webkit-transform: rotate(0deg); -o-transform: rotate(0deg); -moz-transform: rotate(0deg);}
+			100% {transform: rotate(360deg);-ms-transform: rotate(360deg); -webkit-transform: rotate(360deg); -o-transform: rotate(360deg); -moz-transform: rotate(360deg);}
+		}
+
+		@-moz-keyframes rotate-loading {
+			0%  {transform: rotate(0deg);-ms-transform: rotate(0deg); -webkit-transform: rotate(0deg); -o-transform: rotate(0deg); -moz-transform: rotate(0deg);}
+			100% {transform: rotate(360deg);-ms-transform: rotate(360deg); -webkit-transform: rotate(360deg); -o-transform: rotate(360deg); -moz-transform: rotate(360deg);}
+		}
+
+		@-webkit-keyframes rotate-loading {
+			0%  {transform: rotate(0deg);-ms-transform: rotate(0deg); -webkit-transform: rotate(0deg); -o-transform: rotate(0deg); -moz-transform: rotate(0deg);}
+			100% {transform: rotate(360deg);-ms-transform: rotate(360deg); -webkit-transform: rotate(360deg); -o-transform: rotate(360deg); -moz-transform: rotate(360deg);}
+		}
+
+		@-o-keyframes rotate-loading {
+			0%  {transform: rotate(0deg);-ms-transform: rotate(0deg); -webkit-transform: rotate(0deg); -o-transform: rotate(0deg); -moz-transform: rotate(0deg);}
+			100% {transform: rotate(360deg);-ms-transform: rotate(360deg); -webkit-transform: rotate(360deg); -o-transform: rotate(360deg); -moz-transform: rotate(360deg);}
+		}
+
+		@keyframes loading-text-opacity {
+			0%  {opacity: 0}
+			20% {opacity: 0}
+			50% {opacity: 1}
+			100%{opacity: 0}
+		}
+
+		@-moz-keyframes loading-text-opacity {
+			0%  {opacity: 0}
+			20% {opacity: 0}
+			50% {opacity: 1}
+			100%{opacity: 0}
+		}
+
+		@-webkit-keyframes loading-text-opacity {
+			0%  {opacity: 0}
+			20% {opacity: 0}
+			50% {opacity: 1}
+			100%{opacity: 0}
+		}
+
+		@-o-keyframes loading-text-opacity {
+			0%  {opacity: 0}
+			20% {opacity: 0}
+			50% {opacity: 1}
+			100%{opacity: 0}
+		}
+		.loading-container,
+		.loading {
+			height: 100px;
+			position: relative;
+			width: 100px;
+			border-radius: 100%;
+		}
+
+
+		.loading-container { margin: 40px auto }
+
+		.loading {
+			border: 2px solid transparent;
+			border-color: transparent black transparent black;
+			-moz-animation: rotate-loading 1.5s linear 0s infinite normal;
+			-moz-transform-origin: 50% 50%;
+			-o-animation: rotate-loading 1.5s linear 0s infinite normal;
+			-o-transform-origin: 50% 50%;
+			-webkit-animation: rotate-loading 1.5s linear 0s infinite normal;
+			-webkit-transform-origin: 50% 50%;
+			animation: rotate-loading 1.5s linear 0s infinite normal;
+			transform-origin: 50% 50%;
+		}
+
+		.loading-container:hover .loading {
+			border-color: transparent #E45635 transparent #E45635;
+		}
+		.loading-container:hover .loading,
+		.loading-container .loading {
+			-webkit-transition: all 0.5s ease-in-out;
+			-moz-transition: all 0.5s ease-in-out;
+			-ms-transition: all 0.5s ease-in-out;
+			-o-transition: all 0.5s ease-in-out;
+			transition: all 0.5s ease-in-out;
+		}
+
+		#loading-text {
+			-moz-animation: loading-text-opacity 2s linear 0s infinite normal;
+			-o-animation: loading-text-opacity 2s linear 0s infinite normal;
+			-webkit-animation: loading-text-opacity 2s linear 0s infinite normal;
+			animation: loading-text-opacity 2s linear 0s infinite normal;
+			color: 'black';
+			font-family: "Helvetica Neue, "Helvetica", ""arial";
+			font-size: 10px;
+			font-weight: bold;
+			margin-top: 45px;
+			opacity: 0;
+			position: absolute;
+			text-align: center;
+			text-transform: uppercase;
+			top: 0;
+			width: 100px;
+		}
+		</style>
+	</section>
+</html>

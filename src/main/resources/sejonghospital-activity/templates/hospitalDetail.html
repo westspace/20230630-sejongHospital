@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorator="~{layouts/layout}">
+	
+	<section layout:fragment="contents" class="comn-container">
+
+		<script>
+			let latitude;
+			let longitude;
+			if('geolocation' in navigator) {
+				/* 위치정보 사용 가능 */
+				//console.log('가능', navigator);
+				navigator.geolocation.getCurrentPosition(async function(pos) {
+					latitude = pos.coords.latitude;
+					longitude = pos.coords.longitude;
+
+					if(latitude) {
+						try {
+							let d = await localStorage.getItem('h');
+							let p = await JSON.parse(d);
+							let item = p.filter(item=>item.hpid == location.href.split('hospitalDetail/')[1])[0]
+							
+							let distanceParse = distance(latitude, longitude, item.LATITUDE, item.LONGITUDE);
+	
+							console.log('distanceParse : ', distanceParse);
+							$('.h-info-addr').append(distanceParse.toFixed(1) + 'km이내 | ');
+							
+						} catch (error) {
+							alert('위치 정보를 불러올 수 없습니다.\n위경도 액세스를 허용해주세요.');
+						}
+					}
+					
+				});
+			} else {
+				/* 위치정보 사용 불가능 */
+				console.log('불가능');
+			}
+			function distance(myLat,myLng,shopLat,shopLng){
+				function deg2rad(deg){
+					return deg * (Math.PI/180)
+				}
+				const R = 6371;
+				const dLat = deg2rad(shopLat-myLat);
+				const dLon = deg2rad(shopLng-myLng);
+		
+				const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(deg2rad(myLat)) * Math.cos(deg2rad(shopLat)) * Math.sin(dLon/2) * Math.sin(dLon/2);
+				const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+				const d = R * c;
+				return d;
+			}
+
+		</script>
+
+		<style>.dataNon{ color: black; }</style>
+
+		<span style="position: fixed; z-index: 1; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+			<div style="flex: 1;"></div>
+			<div style="flex: 4;" id="topNavTitle" class="top-nav-title"></div>
+			<div style="text-align: right; flex: 1;">
+				<img src="/images/top_menu.png" class="home-top-menu" onclick="navOpen();">
+			</div>
+		</span>
+
+		<span class="h-info-menu-wrap">
+			<div class="h-info-menu" onclick="infoMenu(this, '병원정보');">병원정보</div>
+			<div class="h-info-menu" onclick="infoMenu(this, '응급실정보');">응급실정보</div>
+			<div class="h-info-menu" onclick="infoMenu(this, '메시지');">메시지</div>
+		</span>
+	
+		<script>
+			//location.href.split('hospitalDetail/')[1]
+			const h_data = async () => {
+				let d = await localStorage.getItem('h');
+				let p = await JSON.parse(d);
+				let item = p.filter(item=>item.hpid == location.href.split('hospitalDetail/')[1])[0]
+				console.log(item);
+
+				document.getElementById('topNavTitle').innerHTML=item.dutyName;
+				
+				$('.h-info-name').append(item.dutyName);
+				$('.h-info-area').append(areaChk(item.h_data.AREA));
+				$('.dutyTel1').append(areaChk(item.dutyTel3));
+				
+                
+                document.querySelector('.dutyTel1').addEventListener("click", (()=>{
+                    // window.navigator.clipboard.writeText(item.dutyTel3).then(() => {
+                    // alert("병원 전화번호가 복사 되었습니다!");
+                    // });
+                    prompt(`${item.dutyName} 전화번호 입니다. `, item.dutyTel3);
+                }));
+
+				console.log('item.distance : ', item.distance);
+				if(item.distance) {
+					//$('.h-info-addr').append(item.distance.toFixed(1) + 'km이내 | ');
+				}
+
+				hDetailData(item);
+				hDetailMsgData(item.hpid);
+			}
+
+			const hValidChk = (e) => {
+				let result;
+				switch (e) {
+					// case 0: result = '-'
+					// 	break;
+					default:result=e
+						break;
+				}
+				return result;
+			}
+
+			const ynValidChk = (e) => {
+				let result;
+				switch (e) {
+					case 'Y': result = '가능'
+						break;
+					case 'N': result = '불가능'
+						break;
+				}
+				return result;
+			}
+
+			const hDetailData=async(item)=>{
+				try {
+
+					let f = await fetch(`/api/getEgytBassInfoInqire?hpid=${location.href.split('hospitalDetail/')[1]}`);
+					let j = await f.json();	
+					let detailItem = JSON.parse(j.data);
+					console.log(detailItem);
+
+					$('.dutyAddr').append(detailItem.dutyAddr);
+					// $('.dutyTel1').append(detailItem.dutyTel1);
+					$('.hvec').append(item.hvec);
+					$('.hv27').append(hValidChk(item.hv27));
+					$('.hv13').append(hValidChk(item.hv13));
+					$('.hv14').append(hValidChk(item.hv14));
+					$('.hv15').append(hValidChk(item.hv15));
+					$('.hv16').append(hValidChk(item.hv16));
+					$('.hv10').append(hValidChk(item.hv28));
+					
+					
+
+					$('.MKioskTy1').append(detailItem.MKioskTy1 ? ynValidChk(detailItem.MKioskTy1) : '-');
+
+					if(detailItem.MKioskTy1 == 'Y') {
+						$('.MKioskTy1').addClass('e-bottom-data-p');
+					} else if(detailItem.MKioskTy1 == 'N') {
+						$('.MKioskTy1').addClass('e-bottom-data-ip');
+					} 
+
+					$('.MKioskTy7').append(ynValidChk(detailItem.MKioskTy7));
+					
+					
+					
+				} catch (error) {
+					console.log(error);
+				}
+			}
+			const hDetailMsgData=async(item)=>{
+				try {
+
+					let f = await fetch(`/api/getEmrrmSrsillDissMsgInqire?hpid=${item}`);
+					let j = await f.json();	
+					
+					let p = JSON.parse(j.data);
+
+					if(p.response.body.items) {
+						console.log(p.response.body.items.item);
+	
+						let html='';
+
+						p.response.body.items.item.map(item=>{
+
+							let date = String(item.symBlkSttDtm).slice(0,4) + '-' 
+							+ String(item.symBlkSttDtm).slice(4, 6) + '-' 
+							+ String(item.symBlkSttDtm).slice(6,8) + ' ' 
+							+ String(item.symBlkSttDtm).slice(8,10) + ':' 
+							+ String(item.symBlkSttDtm).slice(10, 12); 
+
+							html += `
+								<span class="m-info-data-item">
+									<span style="display: flex; align-items: center; flex:2.5;">
+									
+										<div >- ${item.symBlkMsg}</div>
+									</span>
+		
+									<div style="color: #898989; display:flex; flex:1; justify-content:flex-end;">${date}</div>
+								</span>
+							`;
+						});
+						$('.m-info-data').append(html);
+					}
+				} catch (error) {
+					console.log(error);
+				}
+			}
+
+			window.onload=function() {
+				h_data();
+			}
+
+			/*
+			$("button").click(function() {
+				$('html, body').animate({
+					scrollTop: $(".second").offset().top 
+				},
+				'slow');
+			});
+			*/
+		</script>
+
+		<span class="h-info-items" style="padding-top: 100px; display: block;">
+
+			<div class="h-info">
+				<span class="h-info-class">
+					<div class="h-info-area"></div>
+					<div>&nbsp;[센터]&nbsp;</div>
+					<div>[감염]</div>
+				</span>
+				<h1 class="h-info-name"></h1>
+				<span>
+					<div class="h-info-addr dutyAddr"></div>
+				</span>
+
+				<span class="h-info-notice-wrap"></span>
+
+				<span class="h-info-e-phone">
+					<img src="/images/local_phone.png" alt="" style="margin: 0px 5px;">
+					<div style="margin: 0px 5px;" class="dutyTel1">응급의료센터 | </div>
+				</span>
+			</div>
+
+			<div class="e-info">	
+				<!-- <span class="e-info-top">
+					<span class="e-info-top-wrap">
+						<div>응급실일반/응급실소아 : </div>
+
+						<span class="room-status-circle-wrap">
+							<div class="room-status-circle" style="background: #3CB44A;"></div>
+							<div>80% 이상</div>
+						</span>
+
+						<span class="room-status-circle-wrap">
+							<div class="room-status-circle" style="background: #FF7700;"></div>
+							<div>50~79% 이상</div>
+						</span>
+
+						<span class="room-status-circle-wrap">
+							<div class="room-status-circle" style="background: #DD272A;"></div>
+							<div>50% 미만</div>
+						</span>
+					</span>
+
+					<span class="e-info-top-wrap">
+						<div>음압/일반/코호트격리 : </div>
+
+						<span class="room-status-circle-wrap">
+							<div class="room-status-circle" style="background: #3CB44A;"></div>
+							<div>100%</div>
+						</span>
+
+						<span class="room-status-circle-wrap">
+							<div class="room-status-circle" style="background: #FF7700;"></div>
+							<div>50~99%</div>
+						</span>
+
+						<span class="room-status-circle-wrap">
+							<div class="room-status-circle" style="background: #DD272A;"></div>
+							<div>50% 미만</div>
+						</span>
+					</span>
+
+					<span class="e-info-top-wrap">
+						<div>분만실:</div>
+
+						<span class="room-status-circle-wrap">
+							<div class="room-status-circle" style="background: #3CB44A;"></div>
+							<div>Y</div>
+						</span>
+						
+						<span class="room-status-circle-wrap">
+							<div class="room-status-circle" style="background: #DD272A;"></div>
+							<div>N</div>
+						</span>
+					</span>
+				</span> -->
+
+				<h3>응급실</h3>
+
+				<!-- <span class="e-center"> -->
+				<span class="e-bottom">
+					<span>
+						<div class="e-center-title">일반</div>
+					</span>
+
+					<span>
+						<div class="e-center-title">코호트 격리</div>
+					</span>
+
+					<span style="flex: 1;">
+						<div>격리진료구역</div>
+						<div>음압격리</div>
+					</span>
+
+					<span style="flex: 1;">
+						<div>격리진료구역</div>
+						<div>일반격리</div>
+					</span>
+
+					<span>
+						<div>소아음압격리</div>
+					</span>
+				</span>
+
+				<span class="e-center-data">
+					<div class="hvec"></div>
+					<div class="hv27"></div>
+					<div class="hv13"></div>
+					<div class="hv14"></div>
+					<div class="hv15"></div>
+				</span>
+				<!-- <span class="room-status-circle" style="background: #FF7700;"></span> 
+				<span class="room-status-circle" style="background: #DD272A;"></span> -->
+
+				<span class="e-bottom">
+					<span>
+						<div>소아일반격리</div>
+					</span>
+					<span>
+						<div>소아</div>
+					</span>
+
+
+					<span>
+						<div>-</div>
+					</span>
+
+					<span>
+						<div>-</div>
+					</span>
+
+					<span>
+						<div>-</div>
+					</span>
+				</span>
+
+				<span class="e-center-data">
+					<div class="hv16"></div>
+					<div class="hv10"></div>
+					<div>-</div>
+					<div>-</div>
+					<div>-</div>
+				</span>
+				
+
+				<h3>중증응급질환 수용가능정보</h3>
+
+				<span class="e-bottom">
+					<span>
+						<div>[뇌출혈수술]</div>
+						<div>거미막하출혈</div>
+					</span>
+					<span>
+						<!-- <div>[대동맥응급]</div>
+						<div>복부</div> -->
+						<div>-</div>
+					</span>
+					<span>
+						<!-- <div>[담낭담관질환]</div>
+						<div>담낭질환</div> -->
+						<div>-</div>
+					</span>
+					<span>
+						<!-- <div>[복부응급수술]</div>
+						<div>비외상</div> -->
+						<div>-</div>
+					</span>
+					<span>
+						<!-- <div>[대동맥응급]</div>
+						<div>흉부</div> -->
+						<div>-</div>
+					</span>
+				</span>
+
+				<span class="e-bottom-data">
+					<div class="e-bottom-data-p MKioskTy1"></div>
+					<div class="e-bottom-data-p dataNon">-</div>
+					<div class="e-bottom-data-p dataNon">-</div>
+					<div class="e-bottom-data-p dataNon">-</div>
+					<div class="e-bottom-data-p dataNon">-</div>
+				</span>
+
+				<span class="e-bottom">
+					<span>
+						<div>-</div>
+					</span>
+					<span>
+						<div>-</div>
+					</span>
+					<span>
+						<div>-</div>
+					</span>
+					<span>
+						<!-- <div>[응급투석]</div>
+						<div>비외상</div> -->
+						<div>-</div>
+					</span>
+					<span>
+						<div>-</div>
+					</span>
+				</span>
+
+				<span class="e-bottom-data">
+					<div class="e-bottom-data-p dataNon">-</div>
+					<div class="e-bottom-data-p dataNon">-</div>
+					<div class="e-bottom-data-p dataNon">-</div>
+					<div class="e-bottom-data-p dataNon">-</div>
+					<div class="e-bottom-data-p dataNon">-</div>
+				</span>
+
+				
+			</div>
+
+			<div class="m-info">
+				<h3>메시지</h3>
+				
+				<!-- <span class="m-info-status-container">
+					<span class="m-info-status-wrap">
+						<div class="room-status-circle" style="background: #3CB44A;"></div>
+						<div>응급실 메시지</div>	
+					</span>
+					&nbsp;
+					<span class="m-info-status-wrap">
+						<div class="room-status-circle" style="background: #DD272A;"></div>
+						<div>진료불가능 메시지</div>	
+					</span>
+				</span> -->
+
+				<span class="m-info-data">
+
+					
+				</span>
+			</div>
+		</span>
+
+	</section>
+</html>

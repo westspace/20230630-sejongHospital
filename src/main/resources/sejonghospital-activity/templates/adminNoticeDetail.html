@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<section th:ref="contents" class="">
+		<header th:replace="fragments/adminHeader :: fragmentAdminHeader"></header>
+		
+		<script th:inline="javascript">
+			/*<![CDATA[*/
+			var boardData = /*[[${boardData}]]*/
+			/*]]>*/
+			console.log(boardData)
+
+			function replaceBrTag(str) {
+				if (str == undefined || str == null) {
+						return "";
+				}
+				str = str.replace(/\r\n/ig, '<br>');
+				str = str.replace(/\\n/ig, '<br>');
+				str = str.replace(/\n/ig, '<br>');
+				return str;
+			}
+
+			let item = boardData.data;
+
+			const getBoardData = () => {
+				$('.board-title').append(item.TITLE);
+				$('#board-body').append(replaceBrTag(item.BODY));
+				$('.board-regDate').append(new Date(item.REG_DATE).toLocaleString());
+				
+				if(item.IMAGE_PATH) {
+					console.log(item.IMAGE_ORIGIN);
+					let html = '';
+					html += `
+						<img src="/articleImage/${item.IMAGE_PATH.split('articleImage/')[1]}" alt="">
+					`;
+					$('.board-image').append(html);
+				}
+			}
+
+			window.onload=function() {
+				getBoardData();
+			}
+
+			const boardRemove = async () => {
+				console.log(item);
+				let f = await fetch('/api/adminBoardRemove', {
+					method:'post',
+					headers: {
+					'Content-Type': 'application/json',
+					},
+					body:JSON.stringify(item)
+				});
+
+				let j = await f.json();
+
+				console.log(j);
+
+				if(j.code == 'S-1') {
+					history.back();
+				}
+			}
+
+			const moveBoardModify = async () => {
+				console.log(location.href.split('noticeDetail/')[1]);
+				location.href=`/admin/noticeModify/${location.href.split('noticeDetail/')[1]}`;
+			}
+
+		</script>
+
+		<span style="padding: 20px; display: block;">
+			<span class="admin-hp-wrap admin-notice-wrap">
+				<div style="color: #898989;">공지사항</div>
+				<span>
+					<button onclick="moveBoardModify();">글수정</button>
+					<button onclick="boardRemove();">글삭제</button>
+				</span>
+			</span>
+
+			<span>
+				<h1 class="board-title"></h1>
+				<div class="board-regDate"></div>
+				<div class="board-image" id="board-image"></div>
+				<article class="board-body" id="board-body"></article>
+			</span>
+		</span>
+	</section>
+</html>

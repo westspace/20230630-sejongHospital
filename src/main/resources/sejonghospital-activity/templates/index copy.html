@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorator="~{layouts/layout}">
+	
+	<section layout:fragment="contents" class="comn-container">
+		<script>
+			if('geolocation' in navigator) {
+			/* 위치정보 사용 가능 */
+
+				console.log('가능', navigator);
+
+				navigator.geolocation.getCurrentPosition( function(pos) {
+
+				var latitude = pos.coords.latitude;
+				var longitude = pos.coords.longitude;
+
+				//alert("현재 위치는 : "+ latitude + ", "+ longitude);
+				document.querySelector('.lat').innerHTML = latitude;
+				document.querySelector('.log').innerHTML = longitude;
+			});
+			
+			} else {
+				/* 위치정보 사용 불가능 */
+				console.log('불가능');
+			}
+		</script>
+
+		<div class="lat"></div>
+		<div class="log"></div>
+	</section>
+</html>

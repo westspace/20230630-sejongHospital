@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<section th:ref="contents" class="">
+		<header th:replace="fragments/adminHeader :: fragmentAdminHeader"></header>
+
+		<span style="padding: 20px; display: block;">
+		<span class="admin-hp-wrap">
+			<div style="color: #898989;">지역선택 (API 요청)</div>
+			<select name="" id="" onchange="hPosition(this);">
+				<option value="">지역선택</option>
+				<option value="대전광역시">대전</option>
+				<option value="충청남도">충남</option>
+				<option value="충청북도">충북</option>
+				<option value="세종특별자치시">세종</option>
+			</select>
+		</span>
+
+		<script>
+			let tableList = []; 
+			let pageList = 5;
+			let pageMax = 3;    	
+			let idx = 0;
+			let page = 1;
+
+		    	
+			function tableInsert(v, area){
+				for (var i = 0; i < v.length; i++){
+				
+					var jsonObject = {
+						"idx":i, 
+						"dutyName": v[i].dutyName,
+						"hpid": v[i].hpid,
+						"dutyTel3": v[i].dutyTel3,
+						"area" : area
+					};
+					tableList.push(jsonObject);
+				}
+
+				pageInsert(page);
+			};
+
+			function pageInsert(value){
+				// [페이징 목록 초기화 실시]
+				$("#dyn_ul").empty();
+	
+				var startIndex = value; 
+				var endIndex = tableList.length;
+				var pageCount = 0;
+				var pagePlus = 0;
+				if(endIndex > pageList){
+					pageCount = Math.floor(endIndex / pageList); 
+					pagePlus = endIndex % pageList;
+					if(pagePlus > 0){ 
+						pageCount = pageCount + 1;
+					}
+				}
+
+				if(startIndex > pageCount){ 
+					startIndex = page;
+				}
+				else if(startIndex < 0){ 
+					startIndex = page;
+				}
+				else {
+					page = startIndex;
+				}
+
+				if(pageCount == 1){ 
+					var insertUl = "<li class='page-item'>";
+					insertUl += insertUl + "<a class='page-link' href='javascript:void(0)' onclick = 'newPage(1);'>";
+					insertUl += insertUl + i;
+					insertUl += insertUl + "</a></li>";
+					$("#dyn_ul").append(insertUl);  			
+				}
+				else if(pageCount >= 2){
+				
+					var insertSTR = "<li class='page-item'>"; 
+					insertSTR = insertSTR + "<a class='page-link' href='javascript:void(0)' onclick = 'newPage("+"-1"+");'>";
+					insertSTR = insertSTR + "이전";
+					insertSTR = insertSTR + "</a></li>";
+					$("#dyn_ul").append(insertSTR);	
+
+				
+					var count = 1;
+					for(var i=startIndex; i<=pageCount; i++){
+						if(count > pageMax){ 
+							page = i - pageMax; 
+							break;
+						}
+						var insertUl = "<li class='page-item'>"; 
+						insertUl = insertUl + "<a class='page-link' href='javascript:void(0)' onclick = 'newPage("+i+");'>";
+						insertUl = insertUl + String(i);
+						insertUl = insertUl + "</a></li>";
+						$("#dyn_ul").append(insertUl);
+						count ++;
+					}
+					var insertEND = "<li class='page-item'>";
+					insertEND = insertEND + "<a class='page-link' href='javascript:void(0)' onclick = 'newPage("+"0"+");'>";
+					insertEND = insertEND + "다음";
+					insertEND = insertEND + "</a></li>";
+					$("#dyn_ul").append(insertEND);
+				}
+				$("#dyn_tbody").empty();
+				newPage(startIndex);
+			}; 	
+			function newPage(pageCurrent){
+				if(pageCurrent == -1){
+					$("#dyn_tbody").empty(); 
+					var newIdx = page - pageMax;
+					pageInsert(newIdx);
+				} 
+				else if(pageCurrent == 0){ 
+					$("#dyn_tbody").empty();
+
+					
+					var newIdx = page + pageMax;
+					pageInsert(newIdx);
+				}
+				else { 
+					$("#dyn_tbody").empty(); 
+
+					idx = (pageCurrent * pageList) - pageList;
+					
+					var checkCount = 1;
+					for(var i=idx; i<tableList.length; i++){ 
+						if(checkCount > pageList){
+							return;
+						}
+
+						
+						var jsonObject = JSON.parse(JSON.stringify(tableList[i])); 
+						idx = jsonObject.idx;
+
+						var dutyName = jsonObject.dutyName;
+						var hpid = jsonObject.hpid;
+						var dutyTel3 = jsonObject.dutyTel3;
+
+
+					
+						var insertTr = "";
+						insertTr += "<tr>"; 
+						
+							insertTr += "<td>" + hpid + "</td>";
+							insertTr += "<td>" + dutyName + "</td>";
+							insertTr += "<td>" + dutyTel3 + "</td>";
+
+							insertTr += `<td><button class='h-save-button' onclick='hSave(${JSON.stringify(jsonObject)});'>저장</button></td>`;
+
+						insertTr += "</tr>";    
+
+
+						
+						$("#dyn_tbody").append(insertTr);  
+
+
+				
+						checkCount ++;	
+					}							
+				}
+			};
+			
+			const hSave = async (v) => {
+				// alert('');
+				console.log(v);
+
+
+				try {
+					let f = await fetch(`/api/getEgytBassInfoInqire?hpid=${v.hpid}`);
+					let j = await f.json();
+
+					
+					let item = JSON.parse(j.data);
+				
+					console.log(item.wgs84Lat);
+					console.log(item.wgs84Lon);
+
+					Object.assign(v, {lat : item.wgs84Lat, lon : item.wgs84Lon});
+
+					let result = await fetch('/api/saveHospital', {
+						method:'post',
+						headers: {
+						'Content-Type': 'application/json',
+						},
+						body : JSON.stringify(v)
+					});
+
+					let jsonResult = await result.json();
+					
+					if(jsonResult.code == 'F-1') {
+						alert(jsonResult.msg);
+					} else if(jsonResult.code == 'S-1'){
+					
+						hospitalTableList = []; 
+						hIdx = 0; 
+						hPage = 1; 
+
+						hospitalList();
+					}
+
+					
+
+				} catch (error) {
+					console.log(error);
+				}
+			}
+
+			const hPosition = async (e) => {
+				
+
+				if(e.value == '') return false;
+
+				let form = new FormData();
+				form.append('hAddr', e);
+				try {
+					let f = await fetch(`/api/getEmrm?hAddr=${e.value}`);
+					let j = await f.json();
+
+					let items = JSON.parse(j.data);
+
+					console.log(items.response.body.items.item);
+
+					tableList = [];
+					idx = 0;
+					page = 1;
+
+					tableInsert(items.response.body.items.item, e.value);
+					
+				} catch (error) {
+					console.log(error)
+				}
+			}
+				
+
+		</script>
+
+		<span style="display: block; height: 400px;">
+			<table class="table">
+				<thead class="thead-dark">
+				<tr>
+					<!-- <th scope="col">번호</th> -->
+					<th scope="col">병원고유코드</th>	      
+					<th scope="col">병원이름</th>
+					<th scope="col">병원전화번호</th>
+
+
+					<th scope="col">비고</th>
+				</tr>
+				</thead>
+				<tbody id="dyn_tbody">
+				</tbody>
+			</table>
+
+			<nav aria-label="Page navigation example">		
+				<ul id="dyn_ul" class="pagination" style="justify-content: center;">
+				</ul>
+			</nav>
+		</span>
+
+		<script>
+			let findByHospital;
+			const hospitalList = async () => {
+				try {
+					let f = await fetch('/api/hospitalList');
+					let j = await f.json();
+					//console.log(j);
+					findByHospital=j.data;
+					console.log(findByHospital);
+					dbhTableInsert(j.data);
+
+				} catch (error) {
+					console.log(error);
+				}
+			}
+			hospitalList();
+			let hospitalTableList = [];
+			let hospitalPageList = 5; 
+			let hPageMax = 3;    	
+			let hIdx = 0;
+			let hPage = 1;
+
+			function dbhTableInsert(v){
+				console.log('v : ', v);
+				for (var i = 0; i < v.length; i++){
+					var jsonObject = {
+						"idx":i, 
+						"dutyName": v[i].DUTYNAME,
+						"hpid": v[i].HPID,
+						"dutyTel3": v[i].DUTYTEL,
+						"lat": v[i].LATITUDE,
+						"lon": v[i].LONGITUDE,
+						"memo": v[i].M_MEMO,
+						"area": v[i].AREA,
+					};
+					hospitalTableList.push(jsonObject);
+				}
+				dbh_PageInsert(hPage);
+			};
+	
+			function dbh_PageInsert(value){
+				// [페이징 목록 초기화 실시]
+				$("#db_h_list_ul").empty();
+	
+				var startIndex = value; 
+				var endIndex = hospitalTableList.length;
+				var pageCount = 0;
+				var pagePlus = 0;
+				if(endIndex > hospitalPageList){
+					pageCount = Math.floor(endIndex / hospitalPageList); 
+					pagePlus = endIndex % hospitalPageList;
+					if(pagePlus > 0){ 
+						pageCount = pageCount + 1;
+					}
+				}
+				if(startIndex > pageCount){
+					startIndex = hPage;
+				}
+				else if(startIndex < 0){ 
+					startIndex = hPage;
+				}
+				else {
+					hPage = startIndex;
+				}
+
+				if(pageCount == 1){ 
+					var insertUl = "<li class='page-item'>";
+					insertUl += insertUl + "<a class='page-link' href='javascript:void(0)' onclick = 'db_h_newPage(1);'>";
+					insertUl += insertUl + i;
+					insertUl += insertUl + "</a></li>";
+					$("#db_h_list_ul").append(insertUl);			
+				}
+				else if(pageCount >= 2){
+				
+					var insertSTR = "<li class='page-item'>"; 
+					insertSTR = insertSTR + "<a class='page-link' href='javascript:void(0)' onclick = 'db_h_newPage("+"-1"+");'>";
+					insertSTR = insertSTR + "이전";
+					insertSTR = insertSTR + "</a></li>";
+					$("#db_h_list_ul").append(insertSTR);	
+
+				
+					var count = 1;
+					for(var i=startIndex; i<=pageCount; i++){
+						if(count > hPageMax){ 
+							hPage = i - hPageMax; 
+							break;
+						}
+						var insertUl = "<li class='page-item'>";
+						insertUl = insertUl + "<a class='page-link' href='javascript:void(0)' onclick = 'db_h_newPage("+i+");'>";
+						insertUl = insertUl + String(i);
+						insertUl = insertUl + "</a></li>";
+						$("#db_h_list_ul").append(insertUl);
+						count ++;
+					}
+					var insertEND = "<li class='page-item'>";
+					insertEND = insertEND + "<a class='page-link' href='javascript:void(0)' onclick = 'db_h_newPage("+"0"+");'>";
+					insertEND = insertEND + "다음";
+					insertEND = insertEND + "</a></li>";
+					$("#db_h_list_ul").append(insertEND);
+				}
+				$("#db_h_list_tbody").empty();
+				db_h_newPage(startIndex);
+			};
+
+			function db_h_newPage(pageCurrent){
+				if(pageCurrent == -1){
+					$("#db_h_list_tbody").empty(); 
+					var newIdx = hPage - hPageMax;
+					dbh_PageInsert(newIdx);
+				} 
+				else if(pageCurrent == 0){ 
+					$("#db_h_list_tbody").empty();
+
+					
+					var newIdx = hPage + hPageMax;
+					dbh_PageInsert(newIdx); 
+				}
+				else { 
+					$("#db_h_list_tbody").empty();
+
+					idx = (pageCurrent * hospitalPageList) - hospitalPageList;
+					
+					var checkCount = 1;
+					for(var i=idx; i<hospitalTableList.length; i++){ 
+						if(checkCount > hospitalPageList){
+							return;
+						}
+
+						
+						var jsonObject = JSON.parse(JSON.stringify(hospitalTableList[i])); 
+						idx = jsonObject.idx;
+
+						var dutyName = jsonObject.dutyName;
+						var hpid = jsonObject.hpid;
+						var dutyTel3 = jsonObject.dutyTel3;
+
+						var lat = jsonObject.lat;
+						var lon = jsonObject.lon;
+						let memo = jsonObject.memo || '';
+						let area = jsonObject.area;
+						
+						
+						var insertTr = "";
+						insertTr += "<tr>"; // body 에 남겨둔 예시처럼 데이터 삽입
+						
+							insertTr += "<td>" + hpid + "</td>";
+							insertTr += "<td>" + dutyName + "</td>";
+							insertTr += "<td>" + dutyTel3 + "</td>";
+							insertTr += "<td>" + areaChk(area) + "</td>";
+							insertTr += `
+							<td>
+								<input class='admin-memo-input' id='admin-memo-input' type='text' value='${memo}'/>
+								<input class='admin-memo-btn' id='admin-memo-btn'type='button' value='등록' onclick='memoBtn(${JSON.stringify(jsonObject)}, this);'/>
+							</td>
+							`;
+						
+
+							insertTr += `<td><button class='h-save-button' onclick='hRemove(${JSON.stringify(jsonObject)});'>삭제</button></td>`;
+
+						insertTr += "</tr>";    
+
+
+						
+						$("#db_h_list_tbody").append(insertTr);
+
+						
+						checkCount ++;	
+					}							
+				}
+			};
+
+			const areaChk = (area) => {
+				let result;
+				switch (area) {
+					case '충청남도': result = '충남';	
+						break;
+				
+					default: result = area;
+						break;
+				}
+				return result;
+			}
+
+			const memoBtn = async (data, v) => {
+				// console.log(data);
+				if(confirm('메모를 등록하시겠습니까?')) {
+					let form = new FormData();
+					form.append('MEMO', v.parentElement.firstChild.nextSibling.value);
+					form.append('HPID', data.hpid);
+
+					try {
+						let f = await fetch('/api/hospitalAdminMemo',{
+						method:'post',
+						body : form
+					});
+
+						let j = await f.json();
+
+						console.log(j);
+
+						if(j.code.includes('S-')) {
+							alert(j.msg);
+						}
+
+					} catch (error) {
+						console.log(error);
+					}
+				}
+			}
+
+			async function hRemove(data) {
+				console.log(data);
+				let f = await fetch(`/api/removeHospital?hpid=${data.hpid}`);
+				let j = await f.json();
+				console.log(j);
+				hospitalTableList = []; 
+				hIdx = 0;
+				hPage = 1;
+
+				hospitalList();
+			}
+
+			const hospitalSearch = (e = $('.admin-search-input').val()) => {
+				
+				let arr = [];
+				findByHospital.map(item=>{
+					if(item.DUTYNAME.includes(e)) {
+						arr.push(item);
+					}
+				});
+				console.log(arr);
+
+				hospitalTableList = []; 
+				hospitalPageList = 5;
+				hPageMax = 3; 
+				hPage = 1; 
+
+				dbhTableInsert(arr);
+				$('.admin-search-input').val('')
+
+			}
+
+			const enterkey = (e) => {
+				if (window.event.keyCode == 13) {
+					hospitalSearch(e.value);
+				}
+			}
+		</script>
+
+		<span class="admin-hp-wrap">
+			<div style="color: #898989;">저장된 병원 리스트</div>
+
+			<span class="admin-search-wrap">
+				<input type="text" class="admin-search-input" placeholder="병원 검색" onkeypress="enterkey(this);">
+				<button onclick="hospitalSearch();">검색</button>
+			</span>
+		</span>
+
+		<table class="table">
+			<thead class="thead-dark">
+			<tr>
+				<!-- <th scope="col">번호</th> -->
+				<th scope="col">병원고유코드</th>	      
+				<th scope="col">병원이름</th>
+				<th scope="col">병원전화번호</th>
+				<th scope="col">지역</th>
+				<th scope="col">관리자메모</th>
+				<!-- <th scope="col">위도</th>
+				<th scope="col">경도</th> -->
+				<th scope="col">비고</th>
+			</tr>
+			</thead>
+			<tbody id="db_h_list_tbody">
+			</tbody>
+		</table>
+
+		<nav aria-label="Page navigation example">		
+			<ul id="db_h_list_ul" class="pagination" style="justify-content: center;">
+			</ul>
+		</nav>
+		</span>
+	</section>
+</html>

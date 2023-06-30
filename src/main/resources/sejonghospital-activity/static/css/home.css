@@ -1,0 +1,148 @@
+.home-top {
+    min-width: 100%;
+    height: 446px;
+    display: flex;
+    flex-direction: column;
+    /* main/blue */
+    background-color: #1582FF;
+}
+
+.home-top-menu {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    padding: 10px;
+}
+
+.home-top-nav-txt {
+    color: #fff;
+    text-align: center;
+}
+
+.home-top-nav {
+    display: flex;
+    height: 65px;
+    align-items: center;
+    border-bottom: 0.5px solid #fff;
+}
+
+.home-top-nav div {
+    flex: 1;
+}
+
+.home-top-info {
+    padding: 35px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: space-between;
+}
+
+.home-top-user-wrap div{
+    color: #fff;
+}
+
+
+.home-top-user-name {
+    font-weight: bold;
+    font-size: 35px;
+}
+
+.home-top-user-wrap div:nth-child(2){
+    font-size: 28px;
+}
+
+.emergency-room-status-btn {
+    padding: 35px 50px;
+    background-color:#FFFFFF;
+    box-shadow: 0px 2px 14px rgba(0, 0, 0, 0.12);
+    border-radius: 10px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    font-size: 19px;
+}
+
+.home-notice {
+    padding: 35px;
+    display: block;
+}
+
+.home-notice-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+
+    border-top: 0.5px solid #dfdfdf;
+    padding: 20px 0px;
+}
+
+.notice-more-btn{
+    flex: 1 ;
+    padding: 10px 50px;
+    width: 100%;
+    height: 70px;
+    background-color: #ECF3FD;
+    border-radius: 10px;
+    text-align: center;
+    border: none;
+
+    cursor: pointer;
+
+    color: #1582FF;
+    font-weight: bold;
+    font-size: 15px;
+
+    margin: 10px 0px;
+}
+
+
+
+/* 아코디언 메뉴 */
+*{
+   
+}
+
+.que{
+position: relative;
+cursor: pointer;
+font-size: 14px;
+}
+
+
+.que.on>span{
+/*
+font-weight: bold;
+color: #006633; 
+*/
+}
+
+.anw {
+display: none;
+overflow: hidden;
+font-size: 14px;
+background-color: #F6F9FE;
+padding: 27px 10px;
+}
+
+.arrow-wrap {
+position: absolute;
+top:50%; right: 10px;
+transform: translate(0, -50%);
+}
+
+.que .arrow-top {
+display: none;
+}
+.que .arrow-bottom {
+display: block;
+}
+.que.on .arrow-bottom {
+display: none;
+}
+.que.on .arrow-top {
+display: block; 
+}

@@ -1,0 +1,36 @@
+.login-container {
+    display: flex;
+    flex: 1;
+    height: 100vh;
+    align-items: center;
+    justify-content: center;
+}
+
+.auto-btn-txt {
+    cursor: pointer;
+    font-size: 14px;
+    color: #898989;
+}
+
+.login-btn {
+    color: #fff;
+    background-color: #158eff;
+    border: none;
+    padding: 17px;
+    border-radius: 5px;
+    width: 100%;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.login-input {
+    padding: 17px 10px;
+    border: 1px solid #dfdfdf;
+    margin-top: 10px;
+    border-radius: 5px;
+}
+
+
+.image-wrap {
+    text-align: center;
+}

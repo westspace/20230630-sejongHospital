@@ -1,0 +1,75 @@
+
+@media screen and (max-width: 680px) {
+    
+    .e-bottom span div {
+        font-size: 12px;
+    }
+}
+  
+@media screen and (max-width: 550px) {
+    .e-info-top .e-info-top-wrap{
+        display: block;
+    }
+
+    .e-info-top-wrap > div {
+        margin: 10px 0px;
+    }
+    
+
+    .e-center div{
+        font-size: 14px;
+    }
+
+    .e-bottom span div {
+        font-size: 10px;
+    }
+
+    .h-info-addr {
+        font-size: 13px;
+    }
+
+    .h-info-notice-wrap div {
+        font-size: 13px;
+    }
+
+    .hospital-phone-wrap div:nth-child(2)::after {
+        content: '';
+    }
+
+    .hospital-phone-wrap div {
+        margin: 0px; 
+    }
+    
+}
+
+@media screen and (max-width: 550px) {
+    .m-info-data-item div {
+        font-size: 11px;
+    }
+
+    .filter-btn, .gps-status-text {
+        font-size: 11px;
+    }
+}
+
+@media screen and (max-width: 530px) {
+    .h-detail-info-wrap div {
+        font-size: 10px;
+    }
+}
+
+@media screen and (max-width: 445px) {
+    .e-center div{
+        font-size: 10px;
+    }
+
+    .e-bottom span div {
+        font-size: 8px;
+    }
+
+    .h-detail-info-wrap div {
+        font-size: 9px;
+    }
+}
+  
+

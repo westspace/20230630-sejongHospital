@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<header th:ref="fragmentAdminHeader" class="admin-comm-container admin-header">
+		<link rel="stylesheet" href="/css/admin.css">
+		<script src="/js/admin.js"></script>
+		<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/latest/js/bootstrap.min.js"></script>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css">
+		
+		<span>
+			<div style="color: #fff;" onclick="location.href='/admin';">내손안에응급실</div>
+			<div th:if="${rolename == '병원담당자'}">
+				<input type="hidden" th:value="${agency}" id="agencyVal">
+				<div class="admin-name" th:text="| [ ${agency} 병원담당자 ] ${username}님|"></div>
+				<script>
+					console.log(document.querySelector('#agencyVal').value);
+
+					const getHospitalMemoData = async () => {
+						let f = await fetch(`/api/findByHospital?hName=${document.querySelector('#agencyVal').value}`,{
+							method:'post'
+						});
+						let j = await f.json();
+						console.log(j);
+
+						if(j.data) {
+							let item = j.data;
+							let html='';
+							html+=`
+								<span class='h-detail-wrap'>
+									<div>병원 전화번호</div>
+									<div>${item.DUTYTEL}</div>
+								</span>
+
+								<span class='h-detail-wrap'>
+									<div>병원 담당자 메모</div>
+									<span>
+										<input type='text' value='${item.H_MEMO || ''}' class='h-memo'/>
+										<button onclick='hospitalMemo(${JSON.stringify(item.HPID)});'>등록</button>
+									</span>
+								</span>
+
+								<span class='h-detail-wrap'>
+									<div>관리자 메모</div>
+									<div>${item.M_MEMO || '-'}</div>
+								</span>
+							`;
+							$('.hospital-state').append(html);
+						} else {
+
+							$('.hospital-state').append('병원 데이터가 없습니다. 관리자에게 문의해주세요.');;
+						}
+							
+					}
+
+					getHospitalMemoData();
+
+					const hospitalMemo = async (e) => {
+						console.log(e);
+
+						let form = new FormData();
+						form.append('hpid', e);
+						form.append('hMemo', document.querySelector('.h-memo').value);
+						let f = await fetch('/api/hospitalMemo', {
+							method:'post',
+							body:form
+						});
+
+						let j = await f.json();
+
+						console.log(j);
+					}
+				</script>
+			</div>
+			<div th:if="${rolename == '관리자'}">
+				<div class="admin-name" th:text="| [ 관리자 ] ${username}님|"></div>
+			</div>
+		</span>
+
+		<span class="admin-menu-wrap">
+			<button onclick="location.href='/admin/user';" th:if="${admin}">사용자 관리</button>
+			<button onclick="location.href='/admin/hospital';" th:if="${admin}">병원 관리</button>
+			<button onclick="location.href='/admin/notice';" th:if="${admin}">공자시항</button>
+			<button onclick="logout();">로그아웃</button>
+		</span>
+	</header>
+</html>

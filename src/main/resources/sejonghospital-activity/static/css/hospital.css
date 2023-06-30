@@ -1,0 +1,354 @@
+.hospital-container {
+    /*background-color: #F4F7FA;*/
+    
+}
+
+.hospital-filter-wrap {
+    display: flex;
+    justify-content: space-between;
+    height: 80px;
+    align-items: center;
+}
+
+.hospital-filter-wrap > .filter-click {
+    display: flex;
+    flex: 1;
+}
+
+.filter-items {
+    display: flex;
+    flex: 1;
+    margin: 0px 10px;
+}
+
+.filter-click {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.filter-btn {
+    margin: 0px 10px;
+}
+
+.filter-select {
+    width: 120px;
+    height: 38px;
+    margin: 0px 10px;
+    border:0.5px solid #dfdfdf;
+    padding: 0px 8px;
+}
+
+.hospital-list {
+    background-color: #F4F7FA; 
+    min-width: 100%; 
+    height: 100vh; 
+    display: flex;
+    flex-direction: column;
+}
+
+.hospital-item-container {
+    background-color: #fff; padding: 10px; margin: 10px 0px;
+}
+
+.hospital-item {
+    background-color: #fff;
+    margin: 10px 0px;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 0.5px solid #dfdfdf; 
+
+}
+
+.hospital-phone-wrap {
+    display: flex;
+    border: 0.5px solid #dfdfdf; 
+    padding: 15px 10px; 
+    border-radius: 10px; 
+    cursor: pointer;
+    align-items: center;
+}
+
+.hospital-phone-wrap div {
+    margin: 0px 5px; font-size: 13px;
+}
+
+.hospital-phone-wrap div:nth-child(2)::after {
+    clear: both;
+    content: '응급의료센터';
+}
+
+.hospital-notice {
+    color: #898989;
+    font-size: 13px;
+}
+
+.h-area {
+    background-color: #F957A3;
+    padding: 5px;
+    border-radius: 5px;
+    color: #fff;
+}
+
+.h-area-sejong{
+    background-color: #4F8DF7;
+}
+
+.h-area-chungnam{
+    background-color: #63CBCB;
+}
+
+.ha {
+    color: #898989;
+}
+
+.h-detail-info-wrap {
+    display: flex;
+    padding: 10px 0px;
+}
+
+.h-detail-info-wrap div{
+    padding: 8px 10px;
+    margin: 0px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 11.5px;
+}
+
+.h-detail-info-wrap div:nth-child(1) {
+    background-color: #FCEEEE;
+    color: #DD272A;
+    font-weight: bold;
+}
+
+.h-detail-info-wrap div:nth-child(3) {
+    background-color:#FFF4EB;
+    color: #FF7700;
+    font-weight: bold;
+}
+
+.h-detail-info-wrap div:nth-child(4) {
+    background-color:#FFF4EB;
+    color: #FF7700;
+    font-weight: bold;
+}
+
+/* detail pages */
+
+.h-info-menu-wrap {
+    display: flex; 
+    justify-content: space-around; 
+    border-bottom: 0.5px solid #dfdfdf;
+    background-color: #fff;
+    width: 100%;
+    padding-top: 50px;
+    position: fixed;
+}
+
+.h-info-menu {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    cursor: pointer;
+    height: 50px;
+    align-items: center;
+}
+
+.h-info-class {
+    display: flex;
+    align-items: center;
+}
+
+.h-info-class div {
+    color: #898989;
+    padding: 5px;
+}
+
+.h-info-class div:nth-child(1) {
+    background-color: #4F8DF7;
+    color: #fff;
+    border-radius: 5px;
+}
+
+
+
+.h-info-menu:nth-child(1) {
+    border-bottom: 2px solid black;
+}
+
+.top-nav-title {
+    color: black;
+    z-index: 100;
+}
+
+.h-info, .e-info, .m-info {
+    padding: 10px 20px;
+}
+
+.e-info, .m-info {
+    border-top: 15px solid #F4F7FA;
+}
+
+.m-info {
+    /*margin-bottom: 40%;*/
+    
+}
+
+.h-info-notice-wrap {
+    display: flex; 
+    justify-content: space-between; 
+    margin: 15px 0px;
+}
+
+.h-info-notice-wrap div {
+    color: #898989;
+}
+
+.h-info-notice-wrap div:nth-child(2) {
+    text-align: right;
+}
+
+.h-info-e-phone {
+    border: 0.5px solid #dfdfdf; 
+    display: flex; 
+    width: 280px; 
+    padding: 17px;
+    text-align: center; 
+    margin: 15px 0px; 
+    cursor: pointer; 
+    border-radius: 8px;
+    align-items: center;
+}
+    
+
+.e-info-top {
+    background-color: #F6F9FE;
+    border-radius: 20px;
+}
+
+.e-info-top-wrap {
+    display: flex;
+}
+
+.room-status-circle {
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    margin: 0px 5px;
+}
+
+
+.room-status-circle-wrap {
+    display: flex;
+    align-items: center;
+}
+
+.e-center, .e-center-data, .e-bottom-data {
+    display: flex;
+}
+
+.e-cente {
+    padding: 10px 0px;
+}
+
+.e-center div{
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color:#F4F6F9;
+    /* height: 45px; */
+    font-size: 14px;
+}
+
+
+.e-center-data div {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 45px;
+    font-size: 14px;
+}
+
+.e-bottom-data div {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 45px;
+    font-size: 14px;
+}
+
+.e-bottom-data-p {
+    color: #3CB44A;
+}
+
+.e-bottom-data-ip {
+    color: #DD272A;
+}
+
+.e-bottom {
+    display: flex;
+    align-items: center;
+}
+
+.e-bottom span{
+    flex: 1;
+    height: 75px;
+    background-color: #F4F6F9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.m-info-status-wrap {
+    display: flex;
+    align-items: center;
+}
+
+.m-info-status-container {
+    display: flex;
+    background-color: #F6F9FE;
+    padding: 20px 5px;
+    border-radius: 5px;
+}
+
+.m-info-data-item {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0px;
+}
+
+.m-info-status-wrap div:nth-child(2) {
+    font-weight: bold;
+}
+
+.gps-status-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.filter-btn-wrap  {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.filter-btn-wrap > .gps-status-text {
+    /*display: flex;*/
+    display: none;
+}
+
+.e-center-title {
+    padding: 7px 0px;
+}
+
+.gps-status-text {
+    font-size: 12px;
+}
